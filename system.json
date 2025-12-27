@@ -1,0 +1,19 @@
+{
+  "id": "fvtt-trnity_continuum-Aether",
+  "title": "Trinity Continuum: Aether (Simple)",
+  "description": "Sistema simples para padronizar fichas e rolagens.",
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "12",
+    "verified": "13"
+  },
+  "authors": [{ "name": "Helena" }],
+  "esmodules": ["module/system.js"],
+  "styles": ["css/system.css"],
+  "documentTypes": {
+    "Actor": {
+      "character": {},
+      "npc": {}
+    }
+  }
+}
