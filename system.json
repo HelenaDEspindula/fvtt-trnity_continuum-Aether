@@ -1,15 +1,24 @@
 {
   "id": "fvtt-trnity_continuum-Aether",
-  "title": "Trinity Continuum: Aether (Simple)",
-  "description": "Sistema simples para padronizar fichas e rolagens.",
+  "title": "Trinity Continuum: Aether (MVP)",
+  "description": "A minimal Storypath system for standardized sheets and rolls with automatic success counting.",
   "version": "0.1.0",
+  "authors": [
+    { "name": "Helena D'Espindula" }
+  ],
   "compatibility": {
     "minimum": "12",
     "verified": "13"
   },
-  "authors": [{ "name": "Helena" }],
   "esmodules": ["module/system.js"],
-  "styles": ["css/system.css"],
+  "styles": ["css/aether.css"],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
   "documentTypes": {
     "Actor": {
       "character": {},
@@ -17,3 +26,4 @@
     }
   }
 }
+
