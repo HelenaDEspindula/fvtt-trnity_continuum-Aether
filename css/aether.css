@@ -74,3 +74,53 @@
 
 .aether-ok { font-weight: 700; }
 .aether-bad { font-weight: 700; }
+
+/* =========================
+   Chat Card (Storypath-like)
+   ========================= */
+
+.aether-chatcard {
+  text-align: center;
+}
+
+.aether-chatcard .aether-title {
+  font-weight: 700;
+  font-size: 1.05em;
+  margin-bottom: 6px;
+  opacity: 0.95;
+}
+
+.aether-roll-header {
+  font-size: 1.6em;
+  font-weight: 800;
+  margin: 6px 0;
+}
+
+.aether-roll-summary {
+  font-size: 0.95em;
+  opacity: 0.85;
+  margin: 6px 0;
+}
+
+.aether-roll-footer {
+  font-size: 1.25em;
+  font-weight: 800;
+  margin: 8px 0 4px 0;
+}
+
+.aether-roll-complication {
+  margin-top: 6px;
+  font-size: 0.9em;
+  opacity: 0.85;
+}
+
+/* Center the Foundry dice block inside our chat card */
+.aether-chatcard .dice-roll {
+  margin: 6px auto;
+}
+
+/* Optional: make the dice block a bit tighter */
+.aether-chatcard .dice-result {
+  margin: 0 auto;
+}
+
