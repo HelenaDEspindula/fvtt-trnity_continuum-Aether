@@ -64,24 +64,53 @@ export class AetherActor extends Actor {
         ? `<span class="aether-ok">SUCCESS</span>`
         : `<span class="aether-bad">FAILURE</span>`;
 
-    const html = `
-      <div class="aether-chatcard">
-        <div class="aether-title">${header}</div>
+    // Let Foundry render the dice results (this enables the nice dice display)
+    const rollHTML = await roll.render();
 
-        <div class="aether-row"><b>Pool</b>: ${pool}d10</div>
-        <div class="aether-row"><b>Dice</b>: ${results.join(", ")}</div>
-        <div class="aether-row"><b>Successes (dice)</b>: ${successesFromDice}</div>
-        <div class="aether-row"><b>Enhancement</b>: +${enhancement}</div>
-        <div class="aether-row"><b>Difficulty</b>: -${difficulty}</div>
-
-        <hr>
-
-        <div class="aether-row"><b>Total successes</b>: ${totalSuccesses}</div>
-        <div class="aether-row"><b>Net successes</b>: <span class="aether-big">${netSuccesses}</span> ${outcome}</div>
-
-        ${complication ? `<hr><div class="aether-row"><b>Complication (info)</b>: +${complication}</div>` : ""}
+    // Big header like the screenshot
+    const headerHTML = `
+      <div class="aether-roll-header">
+        ${totalSuccesses} Successes
       </div>
     `;
+
+    // Subheader like "9 Dice + 1 successes"
+    const summaryHTML = `
+      <div class="aether-roll-summary">
+        ${pool} Dice + ${enhancement} successes
+      </div>
+    `;
+
+    // Footer: net successes + outcome
+    const footerHTML = `
+      <div class="aether-roll-footer">
+        ${netSuccesses} Successes ${outcome}
+      </div>
+    `;
+
+    // Optional complication line (informational)
+    const complicationHTML = complication
+      ? `<div class="aether-roll-complication">Complication (info): +${complication}</div>`
+      : "";
+
+    const content = `
+      <div class="aether-chatcard">
+        <div class="aether-title">${header}</div>
+        ${headerHTML}
+        ${summaryHTML}
+        ${rollHTML}
+        ${footerHTML}
+        ${complicationHTML}
+      </div>
+    `;
+
+    // Use ChatMessage.create so the Roll is attached to the message (better rendering / tooltips / integrations)
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content,
+      roll
+    });
+
 
     return roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this }),
