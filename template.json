@@ -67,9 +67,23 @@
 
       "combat": {
         "initiativeEnh": { "value": 0 },
-        "defenseBase": { "value": 0 },
-        "armorSoft": { "value": 0 },
-        "armorHard": { "value": 0 }
+      
+        "armor": {
+          "soft": 0,
+          "hard": 0
+        },
+      
+        "defenseMods": {
+          "stamina": 0,
+          "resolve": 0,
+          "composure": 0
+        },
+      
+        "defenses": {
+          "stamina": 0,
+          "resolve": 0,
+          "composure": 0
+        }
       }
     },
 
