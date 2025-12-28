@@ -43,7 +43,9 @@ export class AetherActor extends Actor {
     }
 
     // Roll dice
-    const roll = await new Roll(`${pool}d10`).evaluate();
+    const roll = new Roll(`${pool}d10`);
+    await roll.evaluate({ async: true });
+
 
     const die = roll.dice?.[0];
     const results = (die?.results ?? []).map(r => r.result);
