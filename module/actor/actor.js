@@ -42,20 +42,19 @@ export class AetherActor extends Actor {
       return;
     }
 
-    // Roll dice
+    // Roll dice (Foundry v12+ compatible)
     const roll = new Roll(`${pool}d10`);
     await roll.evaluate({ async: true });
-
-
+    
     const die = roll.dice?.[0];
     const results = (die?.results ?? []).map(r => r.result);
-
+    
     // Count successes (>= 8)
     const successesFromDice = results.filter(v => v >= 8).length;
     const totalSuccesses = successesFromDice + enhancement;
     const netSuccesses = totalSuccesses - difficulty;
-
-    // === ExEss-style: mark dice as success / failure ===
+    
+    // Mark dice (ExEss-style)
     for (const r of die.results) {
       if (r.result >= 8) {
         r.classes.push("success");
@@ -63,9 +62,17 @@ export class AetherActor extends Actor {
         r.classes.push("failure");
       }
     }
-
-    // Render dice natively (important!)
+    
+    // Render dice natively
     const rollHTML = await roll.render();
+    
+    // Create chat message (IMPORTANT: await it)
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content,
+      roll
+    });
+
 
     // Header (Attribute + Skill)
     const attrName = attrKey ? (AETHER.ATTRIBUTES[attrKey] ?? attrKey) : null;
