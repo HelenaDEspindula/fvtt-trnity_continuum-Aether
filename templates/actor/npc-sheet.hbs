@@ -1,0 +1,28 @@
+<form class="aether sheet actor" autocomplete="off">
+  <header class="aether-header">
+    <h1 class="aether-name">
+      <input name="name" type="text" value="{{actor.name}}" />
+    </h1>
+
+    <div class="aether-top-actions">
+      <button type="button" data-roll-prompt>Roll (Prompt)</button>
+    </div>
+  </header>
+
+  <section class="aether-grid">
+    <div class="aether-card">
+      <h2>Pools</h2>
+      <div class="aether-line">
+        <span>Inspiration</span>
+        <input type="number" name="system.pools.inspiration.value" value="{{system.pools.inspiration.value}}" min="0" />
+        <span class="aether-muted">/</span>
+        <input type="number" name="system.pools.inspiration.max" value="{{system.pools.inspiration.max}}" min="0" />
+      </div>
+
+      <div class="aether-line">
+        <span>Momentum (local tracker)</span>
+        <input type="number" name="system.pools.momentum.value" value="{{system.pools.momentum.value}}" min="0" />
+      </div>
+    </div>
+  </section>
+</form>
