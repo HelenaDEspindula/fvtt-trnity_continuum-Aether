@@ -7,7 +7,7 @@ export class AetherActor extends Actor {
    * - Successes = die results >= 8
    * - Add Enhancement (auto successes)
    * - Subtract Difficulty
-   * - Show Complication as informational only (MVP)
+   * - Complication shown as informational only
    */
   async rollStorypath({
     label = "Roll",
@@ -25,7 +25,7 @@ export class AetherActor extends Actor {
     difficulty = Number(difficulty) || 0;
     complication = Number(complication) || 0;
 
-    // Spend 1 Inspiration to gain Enhancement equal to a chosen Facet
+    // Spend 1 Inspiration to gain Enhancement equal to the chosen Facet
     if (spendInspiration) {
       const currentInsp = this.system?.pools?.inspiration?.value ?? 0;
       if (currentInsp <= 0) {
@@ -42,15 +42,30 @@ export class AetherActor extends Actor {
       return;
     }
 
+    // Roll dice
     const roll = await new Roll(`${pool}d10`).evaluate();
 
     const die = roll.dice?.[0];
     const results = (die?.results ?? []).map(r => r.result);
-    const successesFromDice = results.filter(v => v >= 8).length;
 
+    // Count successes (>= 8)
+    const successesFromDice = results.filter(v => v >= 8).length;
     const totalSuccesses = successesFromDice + enhancement;
     const netSuccesses = totalSuccesses - difficulty;
 
+    // === ExEss-style: mark dice as success / failure ===
+    for (const r of die.results) {
+      if (r.result >= 8) {
+        r.classes.push("success");
+      } else {
+        r.classes.push("failure");
+      }
+    }
+
+    // Render dice natively (important!)
+    const rollHTML = await roll.render();
+
+    // Header (Attribute + Skill)
     const attrName = attrKey ? (AETHER.ATTRIBUTES[attrKey] ?? attrKey) : null;
     const skillName = skillKey ? (AETHER.SKILLS[skillKey] ?? skillKey) : null;
 
@@ -64,63 +79,41 @@ export class AetherActor extends Actor {
         ? `<span class="aether-ok">SUCCESS</span>`
         : `<span class="aether-bad">FAILURE</span>`;
 
-    // Let Foundry render the dice results (this enables the nice dice display)
-    const rollHTML = await roll.render();
-
-    // Big header like the screenshot
-    const headerHTML = `
-      <div class="aether-roll-header">
-        ${totalSuccesses} Successes
-      </div>
-    `;
-
-    // Subheader like "9 Dice + 1 successes"
-    const summaryHTML = `
-      <div class="aether-roll-summary">
-        ${pool} Dice + ${enhancement} successes
-      </div>
-    `;
-
-    // Footer: net successes + outcome
-    const footerHTML = `
-      <div class="aether-roll-footer">
-        ${netSuccesses} Successes ${outcome}
-      </div>
-    `;
-
-    // Optional complication line (informational)
-    const complicationHTML = complication
-      ? `<div class="aether-roll-complication">Complication (info): +${complication}</div>`
-      : "";
-
+    // Chat card content (ExEss-like)
     const content = `
       <div class="aether-chatcard">
         <div class="aether-title">${header}</div>
-        ${headerHTML}
-        ${summaryHTML}
+
+        <div class="aether-roll-header">
+          ${totalSuccesses} Successes
+        </div>
+
+        <div class="aether-roll-summary">
+          ${pool} Dice + ${enhancement} successes
+        </div>
+
         ${rollHTML}
-        ${footerHTML}
-        ${complicationHTML}
+
+        <div class="aether-roll-footer">
+          ${netSuccesses} Successes ${outcome}
+        </div>
+
+        ${complication
+          ? `<div class="aether-roll-complication">Complication (info): +${complication}</div>`
+          : ""}
       </div>
     `;
 
-    // Use ChatMessage.create so the Roll is attached to the message (better rendering / tooltips / integrations)
+    // IMPORTANT: use ChatMessage.create with roll attached
     return ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       content,
       roll
     });
-
-
-    return roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this }),
-      flavor: html
-    });
   }
 
   /**
    * Standard roll prompt for Attribute + Skill.
-   * Defaults to Dexterity + Aim as a common Aether starting point.
    */
   async rollPrompt({ attrKey = "dexterity", skillKey = "aim", label = "Storypath Roll" } = {}) {
     const attrVal = Number(this.system?.attributes?.[attrKey]?.value ?? 0) || 0;
