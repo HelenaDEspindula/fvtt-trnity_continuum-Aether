@@ -46,7 +46,7 @@
       "facets": {
         "intuitive": { "value": 0 },
         "reflective": { "value": 0 },
-        "destruction": { "value": 0 }
+        "destructive": { "value": 0 }
       },
 
       "health": {
