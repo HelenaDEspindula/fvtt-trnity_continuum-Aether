@@ -1,0 +1,52 @@
+<section class="aether sheet actor character">
+
+  <!-- HEADER -->
+  <header class="aether-header">
+    <div class="aether-name">
+      <input
+        name="name"
+        type="text"
+        value="{{actor.name}}"
+        placeholder="Character Name"
+      />
+    </div>
+
+    <nav class="aether-tabs" data-group="primary">
+      <a class="item" data-tab="description">0) Description</a>
+      <a class="item" data-tab="general">1) General</a>
+      <a class="item" data-tab="stats">2) Stats</a>
+      <a class="item" data-tab="gifts">3) Gifts & Deviations</a>
+      <a class="item" data-tab="others">4) Others</a>
+    </nav>
+  </header>
+
+  <!-- TAB CONTENT -->
+  <section class="aether-tab-content">
+
+    <!-- DESCRIPTION -->
+    <div class="tab" data-group="primary" data-tab="description">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/description.hbs"}}
+    </div>
+
+    <!-- GENERAL -->
+    <div class="tab" data-group="primary" data-tab="general">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/general.hbs"}}
+    </div>
+
+    <!-- STATS -->
+    <div class="tab" data-group="primary" data-tab="stats">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/stats.hbs"}}
+    </div>
+
+    <!-- GIFTS -->
+    <div class="tab" data-group="primary" data-tab="gifts">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/gifts.hbs"}}
+    </div>
+
+    <!-- OTHERS -->
+    <div class="tab" data-group="primary" data-tab="others">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/others.hbs"}}
+    </div>
+
+  </section>
+</section>
