@@ -25,7 +25,7 @@ export class AetherActor extends Actor {
     difficulty = Number(difficulty) || 0;
     complication = Number(complication) || 0;
 
-    // Spend 1 Inspiration to gain Enhancement equal to the chosen Facet
+    // Spend 1 Inspiration to gain Enhancement equal to a chosen Facet
     if (spendInspiration) {
       const currentInsp = this.system?.pools?.inspiration?.value ?? 0;
       if (currentInsp <= 0) {
@@ -42,39 +42,34 @@ export class AetherActor extends Actor {
       return;
     }
 
-    // Roll dice (Foundry v12+ compatible)
+    // Foundry v12/v13: evaluate async
     const roll = new Roll(`${pool}d10`);
     await roll.evaluate({ async: true });
-    
+
     const die = roll.dice?.[0];
-    const results = (die?.results ?? []).map(r => r.result);
-    
-    // Count successes (>= 8)
+    if (!die || !Array.isArray(die.results)) {
+      ui.notifications?.error("Roll failed: no dice results found.");
+      console.error("AetherActor.rollStorypath | Missing die/results", { roll });
+      return;
+    }
+
+    const results = die.results.map(r => r.result);
     const successesFromDice = results.filter(v => v >= 8).length;
+
     const totalSuccesses = successesFromDice + enhancement;
     const netSuccesses = totalSuccesses - difficulty;
-    
-    // Mark dice (ExEss-style)
+
+    // ExEss-style: mark dice as success/failure (Foundry-safe)
     for (const r of die.results) {
-      if (r.result >= 8) {
-        r.classes.push("success");
-      } else {
-        r.classes.push("failure");
-      }
+      r.classes ??= []; // IMPORTANT: prevent "Cannot read properties of undefined (reading 'push')"
+
+      if (r.result >= 8) r.classes.push("success");
+      else r.classes.push("failure");
     }
-    
-    // Render dice natively
+
+    // Render dice using Foundry's native dice HTML
     const rollHTML = await roll.render();
-    
-    // Create chat message (IMPORTANT: await it)
-    await ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor: this }),
-      content,
-      roll
-    });
 
-
-    // Header (Attribute + Skill)
     const attrName = attrKey ? (AETHER.ATTRIBUTES[attrKey] ?? attrKey) : null;
     const skillName = skillKey ? (AETHER.SKILLS[skillKey] ?? skillKey) : null;
 
@@ -88,7 +83,10 @@ export class AetherActor extends Actor {
         ? `<span class="aether-ok">SUCCESS</span>`
         : `<span class="aether-bad">FAILURE</span>`;
 
-    // Chat card content (ExEss-like)
+    const complicationHTML = complication
+      ? `<div class="aether-roll-complication">Complication (info): +${complication}</div>`
+      : "";
+
     const content = `
       <div class="aether-chatcard">
         <div class="aether-title">${header}</div>
@@ -107,14 +105,12 @@ export class AetherActor extends Actor {
           ${netSuccesses} Successes ${outcome}
         </div>
 
-        ${complication
-          ? `<div class="aether-roll-complication">Complication (info): +${complication}</div>`
-          : ""}
+        ${complicationHTML}
       </div>
     `;
 
-    // IMPORTANT: use ChatMessage.create with roll attached
-    return ChatMessage.create({
+    // Attach the roll to the message (enables better rendering / tooltips / integrations)
+    return await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       content,
       roll
@@ -123,6 +119,7 @@ export class AetherActor extends Actor {
 
   /**
    * Standard roll prompt for Attribute + Skill.
+   * Defaults to Dexterity + Aim as a common Aether starting point.
    */
   async rollPrompt({ attrKey = "dexterity", skillKey = "aim", label = "Storypath Roll" } = {}) {
     const attrVal = Number(this.system?.attributes?.[attrKey]?.value ?? 0) || 0;
@@ -207,7 +204,7 @@ export class AetherActor extends Actor {
               enhancement: Number(fd.get("enhancement") || 0),
               difficulty: Number(fd.get("difficulty") || 0),
               complication: Number(fd.get("complication") || 0),
-              spendInspiration: Boolean(fd.get("spendInspiration")),
+              spendInspiration: fd.get("spendInspiration") === "on",
               facetKey: String(fd.get("facetKey") || "intuitive")
             };
 
