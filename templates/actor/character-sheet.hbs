@@ -1,90 +1,52 @@
-<form class="aether sheet actor" autocomplete="off">
-  <header class="aether-header">
-    <h1 class="aether-name">
-      <input name="name" type="text" value="{{actor.name}}" />
-    </h1>
+<section class="aether sheet actor character">
 
-    <div class="aether-top-actions">
-      <button type="button" data-roll-prompt>Roll (Prompt)</button>
+  <!-- HEADER -->
+  <header class="aether-header">
+    <div class="aether-name">
+      <input
+        name="name"
+        type="text"
+        value="{{actor.name}}"
+        placeholder="Character Name"
+      />
     </div>
+
+    <nav class="aether-tabs" data-group="primary">
+      <a class="item" data-tab="description">0) Description</a>
+      <a class="item" data-tab="general">1) General</a>
+      <a class="item" data-tab="stats">2) Stats</a>
+      <a class="item" data-tab="gifts">3) Gifts & Deviations</a>
+      <a class="item" data-tab="others">4) Others</a>
+    </nav>
   </header>
 
-  <section class="aether-grid">
-    <div class="aether-card">
-      <h2>Attributes</h2>
-      {{#each AETHER.ATTRIBUTES as |label key|}}
-        <div class="aether-line">
-          <span>{{label}}</span>
-          <input type="number" name="system.attributes.{{key}}.value"
-                 value="{{lookup (lookup ../system.attributes key) "value"}}" min="0" />
-        </div>
-      {{/each}}
+  <!-- TAB CONTENT -->
+  <section class="aether-tab-content">
+
+    <!-- DESCRIPTION -->
+    <div class="tab" data-group="primary" data-tab="description">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/description.hbs"}}
     </div>
 
-    <div class="aether-card">
-      <h2>Skills (click to roll)</h2>
-      {{#each AETHER.SKILLS as |label key|}}
-        <div class="aether-line">
-          <button type="button" class="aether-roll" data-roll-skill data-roll-skill="1" data-roll-skillx="1" data-roll-skilly="1" data-roll-skillz="1" data-roll-skillw="1" data-roll-skillv="1" data-roll-skillu="1" data-roll-skillt="1" data-roll-skills="1" data-roll-skillr="1"
-                  data-roll-skillq="1" data-roll-skillp="1" data-roll-skillo="1" data-roll-skilln="1"
-                  data-roll-skillm="1" data-roll-skilll="1" data-roll-skillk="1" data-roll-skillj="1"
-                  data-roll-skilli="1" data-roll-skillh="1" data-roll-skillg="1"
-                  data-roll-skillf="1" data-roll-skille="1" data-roll-skilld="1"
-                  data-roll-skillc="1" data-roll-skillb="1" data-roll-skilla="1"
-                  data-roll-skill="{{key}}">
-            Roll
-          </button>
-          <span class="aether-skill-label">{{label}}</span>
-          <input type="number" name="system.skills.{{key}}.value"
-                 value="{{lookup (lookup ../system.skills key) "value"}}" min="0" />
-        </div>
-      {{/each}}
+    <!-- GENERAL -->
+    <div class="tab" data-group="primary" data-tab="general">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/general.hbs"}}
     </div>
 
-    <div class="aether-card">
-      <h2>Facets</h2>
-      {{#each AETHER.FACETS as |label key|}}
-        <div class="aether-line">
-          <span>{{label}}</span>
-          <input type="number" name="system.facets.{{key}}.value"
-                 value="{{lookup (lookup ../system.facets key) "value"}}" min="0" />
-        </div>
-      {{/each}}
+    <!-- STATS -->
+    <div class="tab" data-group="primary" data-tab="stats">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/stats.hbs"}}
     </div>
 
-    <div class="aether-card">
-      <h2>Pools</h2>
-      <div class="aether-line">
-        <span>Inspiration</span>
-        <input type="number" name="system.pools.inspiration.value" value="{{system.pools.inspiration.value}}" min="0" />
-        <span class="aether-muted">/</span>
-        <input type="number" name="system.pools.inspiration.max" value="{{system.pools.inspiration.max}}" min="0" />
-      </div>
-
-      <div class="aether-line">
-        <span>Momentum (local tracker)</span>
-        <input type="number" name="system.pools.momentum.value" value="{{system.pools.momentum.value}}" min="0" />
-      </div>
+    <!-- GIFTS -->
+    <div class="tab" data-group="primary" data-tab="gifts">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/gifts.hbs"}}
     </div>
 
-    <div class="aether-card">
-      <h2>Combat (optional tracking)</h2>
-      <div class="aether-line">
-        <span>Initiative Enhancement</span>
-        <input type="number" name="system.combat.initiativeEnh.value" value="{{system.combat.initiativeEnh.value}}" min="0" />
-      </div>
-      <div class="aether-line">
-        <span>Defense Base</span>
-        <input type="number" name="system.combat.defenseBase.value" value="{{system.combat.defenseBase.value}}" min="0" />
-      </div>
-      <div class="aether-line">
-        <span>Armor Soft</span>
-        <input type="number" name="system.combat.armorSoft.value" value="{{system.combat.armorSoft.value}}" min="0" />
-      </div>
-      <div class="aether-line">
-        <span>Armor Hard</span>
-        <input type="number" name="system.combat.armorHard.value" value="{{system.combat.armorHard.value}}" min="0" />
-      </div>
+    <!-- OTHERS -->
+    <div class="tab" data-group="primary" data-tab="others">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/others.hbs"}}
     </div>
+
   </section>
-</form>
+</section>
