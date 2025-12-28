@@ -1,13 +1,51 @@
 import { AETHER } from "../constants.js";
 
 export class AetherActor extends Actor {
+
+  /* -------------------------------------------- */
+  /*  DERIVED DATA                                */
+  /* -------------------------------------------- */
+
+  prepareDerivedData() {
+    super.prepareDerivedData();
+
+    // === Automatic Inspiration Max (PCs only) ===
+    if (this.type === "character") {
+      const facets = this.system?.facets ?? {};
+      const facetValues = Object.values(facets).map(f => Number(f?.value ?? 0) || 0);
+      const maxInspiration = facetValues.length ? Math.max(...facetValues) : 0;
+
+      this.system.pools = this.system.pools ?? {};
+      this.system.pools.inspiration = this.system.pools.inspiration ?? { value: 0, max: 0 };
+      this.system.pools.inspiration.max = maxInspiration;
+    }
+  }
+
+  /* -------------------------------------------- */
+  /*  HELPERS                                     */
+  /* -------------------------------------------- */
+
   /**
-   * Storypath roll (Trinity Continuum):
-   * - Roll pool d10
-   * - Successes = die results >= 8
-   * - Add Enhancement (auto successes)
-   * - Subtract Difficulty
-   * - Complication shown as informational only
+   * Returns the facetKey with the highest value.
+   * Used as default facet for rolls.
+   */
+  getHighestFacetKey() {
+    const facets = this.system?.facets ?? {};
+    const entries = Object.entries(facets)
+      .map(([k, v]) => [k, Number(v?.value ?? 0) || 0]);
+
+    if (!entries.length) return "intuitive";
+
+    entries.sort((a, b) => b[1] - a[1]);
+    return entries[0][0] || "intuitive";
+  }
+
+  /* -------------------------------------------- */
+  /*  PC STORYPATH ROLL                           */
+  /* -------------------------------------------- */
+
+  /**
+   * Storypath roll for PCs
    */
   async rollStorypath({
     label = "Roll",
@@ -18,202 +56,159 @@ export class AetherActor extends Actor {
     attrKey = null,
     skillKey = null,
     spendInspiration = false,
-    facetKey = "intuitive"
+    facetKey = null
   } = {}) {
+
     pool = Number(pool) || 0;
     enhancement = Number(enhancement) || 0;
     difficulty = Number(difficulty) || 0;
     complication = Number(complication) || 0;
 
-    // Spend 1 Inspiration to gain Enhancement equal to a chosen Facet
+    // Default facet = highest facet
+    facetKey = facetKey || this.getHighestFacetKey();
+
+    // Spend Inspiration → Enhancement equal to facet
     if (spendInspiration) {
-      const currentInsp = this.system?.pools?.inspiration?.value ?? 0;
-      if (currentInsp <= 0) {
-        ui.notifications?.warn("No Inspiration available to spend.");
+      const current = this.system?.pools?.inspiration?.value ?? 0;
+      if (current <= 0) {
+        ui.notifications.warn("No Inspiration available.");
       } else {
-        const facetVal = this.system?.facets?.[facetKey]?.value ?? 0;
-        if (facetVal > 0) enhancement += Number(facetVal) || 0;
-        await this.update({ "system.pools.inspiration.value": currentInsp - 1 });
+        const facetValue = Number(this.system?.facets?.[facetKey]?.value ?? 0) || 0;
+        enhancement += facetValue;
+        await this.update({ "system.pools.inspiration.value": current - 1 });
       }
     }
 
     if (pool <= 0) {
-      ui.notifications?.warn("Pool must be at least 1.");
+      ui.notifications.warn("Pool must be at least 1.");
       return;
     }
 
-    // Foundry v12/v13: evaluate async
     const roll = new Roll(`${pool}d10`);
     await roll.evaluate({ async: true });
 
-    const die = roll.dice?.[0];
-    if (!die || !Array.isArray(die.results)) {
-      ui.notifications?.error("Roll failed: no dice results found.");
-      console.error("AetherActor.rollStorypath | Missing die/results", { roll });
-      return;
-    }
+    const die = roll.dice[0];
+    let successesFromDice = 0;
 
-    const results = die.results.map(r => r.result);
-    const successesFromDice = results.filter(v => v >= 8).length;
+    for (const r of die.results) {
+      r.classes ??= [];
+      if (r.result >= 8) {
+        successesFromDice++;
+        r.classes.push("success");
+      }
+    }
 
     const totalSuccesses = successesFromDice + enhancement;
     const netSuccesses = totalSuccesses - difficulty;
 
-    // ExEss-style: mark dice as success/failure (Foundry-safe)
-    for (const r of die.results) {
-      r.classes ??= []; // IMPORTANT: prevent "Cannot read properties of undefined (reading 'push')"
-
-      if (r.result >= 8) r.classes.push("success");
-      else r.classes.push("failure");
-    }
-
-    // Render dice using Foundry's native dice HTML
-    const rollHTML = await roll.render();
-
     const attrName = attrKey ? (AETHER.ATTRIBUTES[attrKey] ?? attrKey) : null;
     const skillName = skillKey ? (AETHER.SKILLS[skillKey] ?? skillKey) : null;
 
-    const headerParts = [];
-    if (attrName) headerParts.push(attrName);
-    if (skillName) headerParts.push(skillName);
-    const header = headerParts.length ? headerParts.join(" + ") : label;
+    const header =
+      attrName && skillName ? `${attrName} + ${skillName}` : label;
 
     const outcome =
       netSuccesses >= 0
         ? `<span class="aether-ok">SUCCESS</span>`
         : `<span class="aether-bad">FAILURE</span>`;
 
-    const complicationHTML = complication
-      ? `<div class="aether-roll-complication">Complication (info): +${complication}</div>`
-      : "";
-
-    const content = `
+    const html = `
       <div class="aether-chatcard">
         <div class="aether-title">${header}</div>
 
-        <div class="aether-roll-header">
-          ${totalSuccesses} Successes
+        ${await roll.render()}
+
+        <div class="aether-row"><b>Dice successes</b>: ${successesFromDice}</div>
+        <div class="aether-row"><b>Enhancement</b>: +${enhancement}</div>
+        <div class="aether-row"><b>Difficulty</b>: -${difficulty}</div>
+
+        <hr>
+
+        <div class="aether-row">
+          <b>Net successes</b>:
+          <span class="aether-big">${netSuccesses}</span> ${outcome}
         </div>
 
-        <div class="aether-roll-summary">
-          ${pool} Dice + ${enhancement} successes
-        </div>
-
-        ${rollHTML}
-
-        <div class="aether-roll-footer">
-          ${netSuccesses} Successes ${outcome}
-        </div>
-
-        ${complicationHTML}
+        ${complication
+          ? `<hr><div class="aether-row"><b>Complication</b>: +${complication}</div>`
+          : ""}
       </div>
     `;
 
-    // Attach the roll to the message (enables better rendering / tooltips / integrations)
-    return await ChatMessage.create({
+    await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
-      content,
+      content: html,
       roll
     });
   }
 
+  /* -------------------------------------------- */
+  /*  NPC STORYPATH ROLL                          */
+  /* -------------------------------------------- */
+
   /**
-   * Standard roll prompt for Attribute + Skill.
-   * Defaults to Dexterity + Aim as a common Aether starting point.
+   * NPC roll using a single pool
+   * Result is whispered to GM
    */
-  async rollPrompt({ attrKey = "dexterity", skillKey = "aim", label = "Storypath Roll" } = {}) {
-    const attrVal = Number(this.system?.attributes?.[attrKey]?.value ?? 0) || 0;
-    const skillVal = Number(this.system?.skills?.[skillKey]?.value ?? 0) || 0;
-    const basePool = attrVal + skillVal;
+  async rollNpcStorypath({
+    label = "NPC Roll",
+    basePool = 0,
+    diceMod = 0,
+    successMod = 0,
+    enhancement = 0
+  } = {}) {
 
-    const attrs = Object.entries(AETHER.ATTRIBUTES)
-      .map(([k, v]) => `<option value="${k}" ${k === attrKey ? "selected" : ""}>${v}</option>`)
-      .join("");
+    let pool = Math.max(0, Number(basePool) + Number(diceMod));
+    successMod = Number(successMod) || 0;
+    enhancement = Number(enhancement) || 0;
 
-    const skills = Object.entries(AETHER.SKILLS)
-      .map(([k, v]) => `<option value="${k}" ${k === skillKey ? "selected" : ""}>${v}</option>`)
-      .join("");
+    if (pool <= 0) {
+      ui.notifications.warn("NPC pool must be at least 1 die.");
+      return;
+    }
 
-    const facets = Object.entries(AETHER.FACETS)
-      .map(([k, v]) => `<option value="${k}">${v}</option>`)
-      .join("");
+    const roll = new Roll(`${pool}d10`);
+    await roll.evaluate({ async: true });
 
-    const content = `
-      <form class="aether-rollform">
-        <div class="form-group">
-          <label>Attribute</label>
-          <select name="attrKey">${attrs}</select>
-        </div>
+    const die = roll.dice[0];
+    let successesFromDice = 0;
 
-        <div class="form-group">
-          <label>Skill</label>
-          <select name="skillKey">${skills}</select>
-        </div>
+    for (const r of die.results) {
+      r.classes ??= [];
+      if (r.result >= 8) {
+        successesFromDice++;
+        r.classes.push("success");
+      }
+    }
 
-        <div class="form-group">
-          <label>Pool (default = Attribute + Skill)</label>
-          <input type="number" name="pool" value="${basePool}" min="1" />
-        </div>
+    const totalSuccesses =
+      successesFromDice +
+      enhancement +
+      successMod;
 
-        <hr>
+    const html = `
+      <div class="aether-chatcard">
+        <div class="aether-title">${this.name} — ${label}</div>
 
-        <div class="form-group">
-          <label>Enhancement</label>
-          <input type="number" name="enhancement" value="0" />
-        </div>
+        ${await roll.render()}
 
-        <div class="form-group">
-          <label>Difficulty</label>
-          <input type="number" name="difficulty" value="0" />
-        </div>
-
-        <div class="form-group">
-          <label>Complication (informational)</label>
-          <input type="number" name="complication" value="0" />
-        </div>
+        <div class="aether-row"><b>Dice successes</b>: ${successesFromDice}</div>
+        <div class="aether-row"><b>Enhancement</b>: +${enhancement}</div>
+        <div class="aether-row"><b>Success modifier</b>: ${successMod >= 0 ? "+" : ""}${successMod}</div>
 
         <hr>
 
-        <div class="form-group">
-          <label>Spend 1 Inspiration for +Enhancement equal to a Facet</label>
-          <input type="checkbox" name="spendInspiration" />
+        <div class="aether-row aether-big">
+          Total Successes: ${totalSuccesses}
         </div>
-
-        <div class="form-group">
-          <label>Facet</label>
-          <select name="facetKey">${facets}</select>
-        </div>
-      </form>
+      </div>
     `;
 
-    return new Dialog({
-      title: label,
-      content,
-      buttons: {
-        roll: {
-          label: "Roll",
-          callback: async (html) => {
-            const form = html[0].querySelector("form");
-            const fd = new FormData(form);
-
-            const data = {
-              label,
-              attrKey: String(fd.get("attrKey") || ""),
-              skillKey: String(fd.get("skillKey") || ""),
-              pool: Number(fd.get("pool") || 0),
-              enhancement: Number(fd.get("enhancement") || 0),
-              difficulty: Number(fd.get("difficulty") || 0),
-              complication: Number(fd.get("complication") || 0),
-              spendInspiration: fd.get("spendInspiration") === "on",
-              facetKey: String(fd.get("facetKey") || "intuitive")
-            };
-
-            await this.rollStorypath(data);
-          }
-        },
-        cancel: { label: "Cancel" }
-      },
-      default: "roll"
-    }).render(true);
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: html,
+      roll,
+      whisper: ChatMessage.getWhisperRecipients("GM")
+    });
   }
 }
