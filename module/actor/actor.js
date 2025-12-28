@@ -9,16 +9,48 @@ export class AetherActor extends Actor {
   prepareDerivedData() {
     super.prepareDerivedData();
 
-    // === Automatic Inspiration Max (PCs only) ===
-    if (this.type === "character") {
-      const facets = this.system?.facets ?? {};
-      const facetValues = Object.values(facets).map(f => Number(f?.value ?? 0) || 0);
-      const maxInspiration = facetValues.length ? Math.max(...facetValues) : 0;
+    if (this.type !== "character") return;
 
-      this.system.pools = this.system.pools ?? {};
-      this.system.pools.inspiration = this.system.pools.inspiration ?? { value: 0, max: 0 };
-      this.system.pools.inspiration.max = maxInspiration;
+    // Ensure nested objects exist (safe, derived-only)
+    this.system.pools ??= {};
+    this.system.pools.inspiration ??= { value: 0, max: 0 };
+
+    this.system.combat ??= {};
+    // New structure (preferred)
+    this.system.combat.armor ??= { soft: 0, hard: 0 };
+    this.system.combat.defenseMods ??= { stamina: 0, resolve: 0, composure: 0 };
+    this.system.combat.defenses ??= { stamina: 0, resolve: 0, composure: 0 };
+
+    // Back-compat: older fields (if present)
+    // If you previously used combat.armorSoft / armorHard, map them into combat.armor
+    if (this.system.combat.armorSoft?.value != null && this.system.combat.armor.soft == null) {
+      this.system.combat.armor.soft = Number(this.system.combat.armorSoft.value) || 0;
     }
+    if (this.system.combat.armorHard?.value != null && this.system.combat.armor.hard == null) {
+      this.system.combat.armor.hard = Number(this.system.combat.armorHard.value) || 0;
+    }
+
+    // === Automatic Inspiration Max (PCs only) ===
+    // Inspiration max = highest Facet value
+    const facets = this.system?.facets ?? {};
+    const facetValues = Object.values(facets).map(f => Number(f?.value ?? 0) || 0);
+    const maxInspiration = facetValues.length ? Math.max(...facetValues) : 0;
+    this.system.pools.inspiration.max = maxInspiration;
+
+    // === Automatic Defenses (3 tracks) ===
+    const sta = Number(this.system?.attributes?.stamina?.value ?? 0) || 0;
+    const res = Number(this.system?.attributes?.resolve?.value ?? 0) || 0;
+    const com = Number(this.system?.attributes?.composure?.value ?? 0) || 0;
+
+    const soft = Number(this.system?.combat?.armor?.soft ?? 0) || 0;
+
+    const mSta = Number(this.system?.combat?.defenseMods?.stamina ?? 0) || 0;
+    const mRes = Number(this.system?.combat?.defenseMods?.resolve ?? 0) || 0;
+    const mCom = Number(this.system?.combat?.defenseMods?.composure ?? 0) || 0;
+
+    this.system.combat.defenses.stamina = sta + soft + mSta;
+    this.system.combat.defenses.resolve = res + soft + mRes;
+    this.system.combat.defenses.composure = com + soft + mCom;
   }
 
   /* -------------------------------------------- */
@@ -27,7 +59,7 @@ export class AetherActor extends Actor {
 
   /**
    * Returns the facetKey with the highest value.
-   * Used as default facet for rolls.
+   * Back-compat: if old key "destruction" exists, treat it as "destructive".
    */
   getHighestFacetKey() {
     const facets = this.system?.facets ?? {};
@@ -37,7 +69,20 @@ export class AetherActor extends Actor {
     if (!entries.length) return "intuitive";
 
     entries.sort((a, b) => b[1] - a[1]);
-    return entries[0][0] || "intuitive";
+    const key = entries[0][0] || "intuitive";
+
+    // Back-compat alias
+    if (key === "destruction") return "destructive";
+    return key;
+  }
+
+  /**
+   * Resolve a facet key safely (supports old "destruction").
+   */
+  _resolveFacetKey(facetKey) {
+    if (!facetKey) return this.getHighestFacetKey();
+    if (facetKey === "destruction") return "destructive";
+    return facetKey;
   }
 
   /* -------------------------------------------- */
@@ -65,7 +110,7 @@ export class AetherActor extends Actor {
     complication = Number(complication) || 0;
 
     // Default facet = highest facet
-    facetKey = facetKey || this.getHighestFacetKey();
+    facetKey = this._resolveFacetKey(facetKey);
 
     // Spend Inspiration → Enhancement equal to facet
     if (spendInspiration) {
@@ -73,7 +118,12 @@ export class AetherActor extends Actor {
       if (current <= 0) {
         ui.notifications.warn("No Inspiration available.");
       } else {
-        const facetValue = Number(this.system?.facets?.[facetKey]?.value ?? 0) || 0;
+        // Try destructive first, then old destruction key if still present
+        const facetValue =
+          Number(this.system?.facets?.[facetKey]?.value ?? 0) ||
+          Number(this.system?.facets?.destruction?.value ?? 0) ||
+          0;
+
         enhancement += facetValue;
         await this.update({ "system.pools.inspiration.value": current - 1 });
       }
