@@ -1,0 +1,76 @@
+.aether.sheet.actor {
+  padding: 8px;
+}
+
+.aether-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.aether-name input {
+  width: 100%;
+  font-size: 1.3em;
+  font-weight: 600;
+}
+
+.aether-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.aether-card {
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.aether-card h2 {
+  margin: 0 0 8px 0;
+  font-size: 1.05em;
+}
+
+.aether-line {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+  margin: 4px 0;
+}
+
+.aether-line input[type="number"] {
+  width: 70px;
+}
+
+.aether-roll {
+  width: 54px;
+}
+
+.aether-skill-label {
+  justify-self: start;
+}
+
+.aether-muted {
+  opacity: 0.7;
+}
+
+.aether-chatcard .aether-title {
+  font-weight: 700;
+  font-size: 1.1em;
+  margin-bottom: 6px;
+}
+
+.aether-chatcard .aether-row {
+  margin: 2px 0;
+}
+
+.aether-big {
+  font-size: 1.15em;
+  font-weight: 700;
+}
+
+.aether-ok { font-weight: 700; }
+.aether-bad { font-weight: 700; }
