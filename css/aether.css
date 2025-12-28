@@ -57,26 +57,11 @@
   opacity: 0.7;
 }
 
-.aether-chatcard .aether-title {
-  font-weight: 700;
-  font-size: 1.1em;
-  margin-bottom: 6px;
-}
-
-.aether-chatcard .aether-row {
-  margin: 2px 0;
-}
-
-.aether-big {
-  font-size: 1.15em;
-  font-weight: 700;
-}
-
 .aether-ok { font-weight: 700; }
 .aether-bad { font-weight: 700; }
 
 /* =========================
-   Chat Card (Storypath-like)
+   Chat Card (ExEss-like)
    ========================= */
 
 .aether-chatcard {
@@ -86,7 +71,7 @@
 .aether-chatcard .aether-title {
   font-weight: 700;
   font-size: 1.05em;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   opacity: 0.95;
 }
 
@@ -99,13 +84,13 @@
 .aether-roll-summary {
   font-size: 0.95em;
   opacity: 0.85;
-  margin: 6px 0;
+  margin-bottom: 6px;
 }
 
 .aether-roll-footer {
   font-size: 1.25em;
   font-weight: 800;
-  margin: 8px 0 4px 0;
+  margin-top: 6px;
 }
 
 .aether-roll-complication {
@@ -114,13 +99,19 @@
   opacity: 0.85;
 }
 
-/* Center the Foundry dice block inside our chat card */
+/* Center dice block */
 .aether-chatcard .dice-roll {
   margin: 6px auto;
 }
 
-/* Optional: make the dice block a bit tighter */
-.aether-chatcard .dice-result {
-  margin: 0 auto;
+/* === ExEss-style dice highlighting === */
+.dice-roll .dice-result.success {
+  background: linear-gradient(135deg, #3fae6a, #2c7c4b);
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 0 6px rgba(63, 174, 106, 0.7);
 }
 
+.dice-roll .dice-result.failure {
+  opacity: 0.6;
+}
