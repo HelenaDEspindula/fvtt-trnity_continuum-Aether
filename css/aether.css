@@ -1,20 +1,62 @@
+/* -------------------------------------------------- */
+/*  BASE LAYOUT                                       */
+/* -------------------------------------------------- */
+
 .aether.sheet.actor {
   padding: 8px;
+  font-size: 13px;
 }
 
 .aether-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 10px;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .aether-name input {
   width: 100%;
-  font-size: 1.3em;
+  font-size: 1.4em;
   font-weight: 600;
 }
+
+/* -------------------------------------------------- */
+/*  TABS                                              */
+/* -------------------------------------------------- */
+
+.aether-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.aether-tabs .item {
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.aether-tabs .item.active {
+  opacity: 1;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.aether-tab-content .tab {
+  display: none;
+}
+
+.aether-tab-content .tab.active {
+  display: block;
+}
+
+/* -------------------------------------------------- */
+/*  CARDS & GRID                                      */
+/* -------------------------------------------------- */
 
 .aether-grid {
   display: grid;
@@ -23,95 +65,161 @@
 }
 
 .aether-card {
-  border: 1px solid rgba(255,255,255,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 6px;
   padding: 8px;
+  margin-bottom: 10px;
 }
 
 .aether-card h2 {
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
   font-size: 1.05em;
+  font-weight: 700;
 }
+
+/* -------------------------------------------------- */
+/*  LINES & FORMS                                     */
+/* -------------------------------------------------- */
 
 .aether-line {
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 8px;
   align-items: center;
-  margin: 4px 0;
+  margin: 3px 0;
+}
+
+.aether-line label {
+  font-weight: 600;
 }
 
 .aether-line input[type="number"] {
-  width: 70px;
+  width: 60px;
 }
 
-.aether-roll {
-  width: 54px;
+.aether-line input[type="text"],
+.aether-line select {
+  width: 100%;
 }
 
-.aether-skill-label {
-  justify-self: start;
+textarea {
+  width: 100%;
+  resize: vertical;
 }
 
 .aether-muted {
   opacity: 0.7;
+  font-size: 0.9em;
 }
 
-.aether-ok { font-weight: 700; }
-.aether-bad { font-weight: 700; }
+/* -------------------------------------------------- */
+/*  ROLL BUTTONS                                      */
+/* -------------------------------------------------- */
 
-/* =========================
-   Chat Card (ExEss-like)
-   ========================= */
+.aether-roll,
+.npc-roll {
+  padding: 2px 6px;
+  font-size: 0.85em;
+  cursor: pointer;
+}
+
+.npc-roll {
+  font-weight: 600;
+}
+
+/* -------------------------------------------------- */
+/*  ITEM LISTS (ExEss-style)                           */
+/* -------------------------------------------------- */
+
+.item-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.item-list .item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.item-controls {
+  display: flex;
+  gap: 6px;
+  font-size: 0.85em;
+}
+
+.item-controls a,
+.item-controls button {
+  cursor: pointer;
+}
+
+/* -------------------------------------------------- */
+/*  HEALTH TRACKER                                    */
+/* -------------------------------------------------- */
+
+.health-label {
+  min-width: 24px;
+  font-weight: 700;
+}
+
+.health-box {
+  margin: 0 2px;
+}
+
+/* -------------------------------------------------- */
+/*  INSPIRATION                                       */
+/* -------------------------------------------------- */
+
+.aether-insp-reset {
+  font-size: 0.8em;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+/* -------------------------------------------------- */
+/*  CHAT CARDS                                        */
+/* -------------------------------------------------- */
 
 .aether-chatcard {
-  text-align: center;
+  padding: 6px;
 }
 
 .aether-chatcard .aether-title {
   font-weight: 700;
-  font-size: 1.05em;
+  font-size: 1.1em;
   margin-bottom: 4px;
-  opacity: 0.95;
 }
 
-.aether-roll-header {
-  font-size: 1.6em;
-  font-weight: 800;
-  margin: 6px 0;
+.aether-chatcard .aether-row {
+  margin: 2px 0;
 }
 
-.aether-roll-summary {
-  font-size: 0.95em;
-  opacity: 0.85;
-  margin-bottom: 6px;
+.aether-big {
+  font-size: 1.15em;
+  font-weight: 700;
 }
 
-.aether-roll-footer {
-  font-size: 1.25em;
-  font-weight: 800;
-  margin-top: 6px;
+.aether-ok {
+  font-weight: 700;
+  color: #7bc47f;
 }
 
-.aether-roll-complication {
-  margin-top: 6px;
-  font-size: 0.9em;
-  opacity: 0.85;
+.aether-bad {
+  font-weight: 700;
+  color: #e06c75;
 }
 
-/* Center dice block */
-.aether-chatcard .dice-roll {
-  margin: 6px auto;
+/* -------------------------------------------------- */
+/*  NPC SHEET                                         */
+/* -------------------------------------------------- */
+
+.sheet.actor.npc .aether-card {
+  margin-bottom: 8px;
 }
 
-/* === ExEss-style dice highlighting === */
-.dice-roll .dice-result.success {
-  background: linear-gradient(135deg, #3fae6a, #2c7c4b);
-  color: #ffffff;
-  font-weight: 800;
-  box-shadow: 0 0 6px rgba(63, 174, 106, 0.7);
-}
-
-.dice-roll .dice-result.failure {
-  opacity: 0.6;
+.sheet.actor.npc .npc-roll {
+  margin-left: 6px;
 }
