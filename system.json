@@ -2,10 +2,10 @@
   "id": "fvtt-trnity_continuum-Aether",
   "title": "Trinity Continuum: Aether (Simple)",
   "description": "Simple character and NPC sheets with Storypath rolling for Trinity Continuum: Aether.",
-  "version": "0.1.9",
+  "version": "0.1.8",
 
   "manifest": "https://raw.githubusercontent.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/main/system.json",
-  "download": "https://github.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/releases/download/v0.1.8/fvtt-trnity_continuum-Aether-0.1.9.zip",
+  "download": "https://github.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/releases/download/v0.1.8/fvtt-trnity_continuum-Aether-0.1.8.zip",
 
   "minimumCoreVersion": "11",
   "compatibleCoreVersion": "11",
@@ -13,7 +13,13 @@
   "authors": [
     {
       "name": "Helena D'Espindula",
-      "url": "https://github.com/HelenaDEspindula"
+      "url": "https://github.com/HelenaDEspindula",
+      "role": "System design, rules adaptation, implementation"
+    },
+    {
+      "name": "ChatGPT (OpenAI)",
+      "url": "https://openai.com",
+      "role": "Assisted with code structure, Foundry VTT patterns, and implementation guidance"
     }
   ],
 
