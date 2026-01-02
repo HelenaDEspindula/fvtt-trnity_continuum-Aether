@@ -1,16 +1,30 @@
+{{!-- systems/fvtt-trnity_continuum-Aether/templates/actor/actor-sheet.hbs --}}
 <form class="aether sheet actor" autocomplete="off">
 
-  {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/parts/header.hbs"}}
+  {{!-- HEADER --}}
+  <header class="aether-header">
+    <div class="aether-name">
+      <input name="name" type="text" value="{{actor.name}}" placeholder="Name" />
+    </div>
 
-  <nav class="sheet-tabs tabs" data-group="primary">
+    {{!-- Optional small meta line --}}
+    <div class="aether-muted">
+      {{#if (eq actor.type "character")}}PC{{/if}}
+      {{#if (eq actor.type "npc")}}NPC{{/if}}
+    </div>
+  </header>
+
+  {{!-- TABS NAV --}}
+  <nav class="sheet-tabs tabs aether-tabs" data-group="primary">
     <a class="item" data-tab="description">Description</a>
     <a class="item" data-tab="general">General</a>
     <a class="item" data-tab="stats">Stats</a>
-    <a class="item" data-tab="gifts">Gifts</a>
+    <a class="item" data-tab="gifts">Gifts & Deviations</a>
     <a class="item" data-tab="others">Others</a>
   </nav>
 
-  <section class="sheet-body">
+  {{!-- TABS CONTENT --}}
+  <section class="sheet-body aether-tab-content">
     <div class="tab" data-group="primary" data-tab="description">
       {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/description.hbs"}}
     </div>
