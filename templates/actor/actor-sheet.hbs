@@ -1,0 +1,35 @@
+<form class="aether sheet actor" autocomplete="off">
+
+  {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/parts/header.hbs"}}
+
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="description">Description</a>
+    <a class="item" data-tab="general">General</a>
+    <a class="item" data-tab="stats">Stats</a>
+    <a class="item" data-tab="gifts">Gifts</a>
+    <a class="item" data-tab="others">Others</a>
+  </nav>
+
+  <section class="sheet-body">
+    <div class="tab" data-group="primary" data-tab="description">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/description.hbs"}}
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="general">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/general.hbs"}}
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="stats">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/stats.hbs"}}
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="gifts">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/gifts.hbs"}}
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="others">
+      {{> "systems/fvtt-trnity_continuum-Aether/templates/actor/tabs/others.hbs"}}
+    </div>
+  </section>
+
+</form>
