@@ -59,7 +59,7 @@
   {{/each}}
 </div>
 
-<!-- COMBAT (NEW) -->
+<!-- COMBAT -->
 <div class="aether-card">
   <h2>Combat</h2>
 
@@ -80,7 +80,7 @@
       name="system.combat.armor.hard"
       value="{{system.combat.armor.hard}}"
     />
-    <span class="aether-muted">Used for Health (optional)</span>
+    <span class="aether-muted">Adds to Health Max</span>
   </div>
 
   <hr>
@@ -122,10 +122,11 @@
   </div>
 </div>
 
-<!-- HEALTH -->
+<!-- HEALTH (UPDATED FOR AUTO BASE/MAX) -->
 <div class="aether-card">
   <h2>Health</h2>
 
+  <!-- Track boxes -->
   {{#each healthRows as |row|}}
     <div class="aether-line">
       <span class="health-label">{{row.label}}</span>
@@ -141,6 +142,34 @@
       {{/each}}
     </div>
   {{/each}}
+
+  <hr>
+
+  <!-- Auto totals -->
+  <div class="aether-line">
+    <label>Health Current</label>
+    <input
+      type="number"
+      name="system.health.current"
+      value="{{system.health.current}}"
+      min="0"
+    />
+    <span class="aether-muted">
+      Max: <b>{{system.health.max}}</b>
+    </span>
+  </div>
+
+  <div class="aether-line">
+    <label>Health Base (track)</label>
+    <input
+      type="number"
+      value="{{system.health.base}}"
+      disabled
+    />
+    <span class="aether-muted">
+      Hard Armor: {{system.combat.armor.hard}}
+    </span>
+  </div>
 
   <label>Notes</label>
   <textarea
