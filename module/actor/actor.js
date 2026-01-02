@@ -2,56 +2,83 @@ import { AETHER } from "../constants.js";
 
 export class AetherActor extends Actor {
 
+ prepareDerivedData() {
+  super.prepareDerivedData();
+
+  if (this.type !== "character") return;
+
   /* -------------------------------------------- */
-  /*  DERIVED DATA                                */
+  /*  ENSURE STRUCTURE                             */
   /* -------------------------------------------- */
 
-  prepareDerivedData() {
-    super.prepareDerivedData();
+  this.system.pools ??= {};
+  this.system.pools.inspiration ??= { value: 0, max: 0 };
 
-    if (this.type !== "character") return;
+  this.system.combat ??= {};
+  this.system.combat.armor ??= { soft: 0, hard: 0 };
+  this.system.combat.defenseMods ??= { stamina: 0, resolve: 0, composure: 0 };
+  this.system.combat.defenses ??= { stamina: 0, resolve: 0, composure: 0 };
 
-    // Ensure nested objects exist (safe, derived-only)
-    this.system.pools ??= {};
-    this.system.pools.inspiration ??= { value: 0, max: 0 };
+  this.system.health ??= {};
+  this.system.health.levels ??= {};
+  this.system.health.current ??= 0;
 
-    this.system.combat ??= {};
-    // New structure (preferred)
-    this.system.combat.armor ??= { soft: 0, hard: 0 };
-    this.system.combat.defenseMods ??= { stamina: 0, resolve: 0, composure: 0 };
-    this.system.combat.defenses ??= { stamina: 0, resolve: 0, composure: 0 };
+  /* -------------------------------------------- */
+  /*  INSPIRATION MAX (from Facets)               */
+  /* -------------------------------------------- */
 
-    // Back-compat: older fields (if present)
-    // If you previously used combat.armorSoft / armorHard, map them into combat.armor
-    if (this.system.combat.armorSoft?.value != null && this.system.combat.armor.soft == null) {
-      this.system.combat.armor.soft = Number(this.system.combat.armorSoft.value) || 0;
-    }
-    if (this.system.combat.armorHard?.value != null && this.system.combat.armor.hard == null) {
-      this.system.combat.armor.hard = Number(this.system.combat.armorHard.value) || 0;
-    }
+  const facets = this.system?.facets ?? {};
+  const facetValues = Object.values(facets).map(f => Number(f?.value ?? 0) || 0);
+  this.system.pools.inspiration.max =
+    facetValues.length ? Math.max(...facetValues) : 0;
 
-    // === Automatic Inspiration Max (PCs only) ===
-    // Inspiration max = highest Facet value
-    const facets = this.system?.facets ?? {};
-    const facetValues = Object.values(facets).map(f => Number(f?.value ?? 0) || 0);
-    const maxInspiration = facetValues.length ? Math.max(...facetValues) : 0;
-    this.system.pools.inspiration.max = maxInspiration;
+  /* -------------------------------------------- */
+  /*  DEFENSES (3 tracks)                          */
+  /* -------------------------------------------- */
 
-    // === Automatic Defenses (3 tracks) ===
-    const sta = Number(this.system?.attributes?.stamina?.value ?? 0) || 0;
-    const res = Number(this.system?.attributes?.resolve?.value ?? 0) || 0;
-    const com = Number(this.system?.attributes?.composure?.value ?? 0) || 0;
+  const sta = Number(this.system?.attributes?.stamina?.value ?? 0) || 0;
+  const res = Number(this.system?.attributes?.resolve?.value ?? 0) || 0;
+  const com = Number(this.system?.attributes?.composure?.value ?? 0) || 0;
 
-    const soft = Number(this.system?.combat?.armor?.soft ?? 0) || 0;
+  const soft = Number(this.system?.combat?.armor?.soft ?? 0) || 0;
 
-    const mSta = Number(this.system?.combat?.defenseMods?.stamina ?? 0) || 0;
-    const mRes = Number(this.system?.combat?.defenseMods?.resolve ?? 0) || 0;
-    const mCom = Number(this.system?.combat?.defenseMods?.composure ?? 0) || 0;
+  const mSta = Number(this.system?.combat?.defenseMods?.stamina ?? 0) || 0;
+  const mRes = Number(this.system?.combat?.defenseMods?.resolve ?? 0) || 0;
+  const mCom = Number(this.system?.combat?.defenseMods?.composure ?? 0) || 0;
 
-    this.system.combat.defenses.stamina = sta + soft + mSta;
-    this.system.combat.defenses.resolve = res + soft + mRes;
-    this.system.combat.defenses.composure = com + soft + mCom;
+  this.system.combat.defenses.stamina = sta + soft + mSta;
+  this.system.combat.defenses.resolve = res + soft + mRes;
+  this.system.combat.defenses.composure = com + soft + mCom;
+
+  /* -------------------------------------------- */
+  /*  HEALTH BASE (from track)                    */
+  /* -------------------------------------------- */
+
+  // Health base = total boxes defined by the track
+  let healthBase = 0;
+
+  for (const level of Object.values(this.system.health.levels)) {
+    const boxes = Number(level?.boxes ?? 0) || 0;
+    healthBase += boxes;
   }
+
+  this.system.health.base = healthBase;
+
+  /* -------------------------------------------- */
+  /*  HEALTH MAX (base + hard armor)              */
+  /* -------------------------------------------- */
+
+  const hard = Number(this.system?.combat?.armor?.hard ?? 0) || 0;
+  this.system.health.max = healthBase + hard;
+
+  /* -------------------------------------------- */
+  /*  CLAMP CURRENT HEALTH                        */
+  /* -------------------------------------------- */
+
+  if (this.system.health.current > this.system.health.max) {
+    this.system.health.current = this.system.health.max;
+  }
+}
 
   /* -------------------------------------------- */
   /*  HELPERS                                     */
