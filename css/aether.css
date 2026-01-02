@@ -157,16 +157,75 @@ textarea {
 }
 
 /* -------------------------------------------------- */
-/*  HEALTH TRACKER                                    */
+/*  HEALTH TRACK                                      */
 /* -------------------------------------------------- */
 
+.aether-card h2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .health-label {
-  min-width: 24px;
+  min-width: 26px;
   font-weight: 700;
+  text-align: right;
 }
 
 .health-box {
-  margin: 0 2px;
+  margin: 0 3px;
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.aether-card .health-box:checked {
+  accent-color: #e06c75;
+}
+
+/* Linha de totais de Health */
+.aether-card .aether-line.health-totals {
+  grid-template-columns: auto auto 1fr;
+  gap: 10px;
+}
+
+.aether-card .aether-line.health-totals input[type="number"] {
+  width: 70px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* -------------------------------------------------- */
+/*  COMBAT (DEFENSES)                                 */
+/* -------------------------------------------------- */
+
+.aether-card .aether-line span.aether-muted b {
+  font-size: 1.05em;
+}
+
+/* Destaque visual para defesas calculadas */
+.aether-card .aether-line span.aether-muted {
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------- */
+/*  READ-ONLY / AUTO FIELDS                           */
+/* -------------------------------------------------- */
+
+input[disabled] {
+  background: rgba(255, 255, 255, 0.08);
+  opacity: 0.85;
+  cursor: not-allowed;
+  font-weight: 600;
+}
+
+/* -------------------------------------------------- */
+/*  QUALITY OF LIFE                                   */
+/* -------------------------------------------------- */
+
+hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  margin: 6px 0;
 }
 
 /* -------------------------------------------------- */
