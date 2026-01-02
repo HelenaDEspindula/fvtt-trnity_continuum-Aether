@@ -1,48 +1,68 @@
 {
   "id": "fvtt-trnity_continuum-Aether",
-  "title": "Trinity Continuum: Aether (MVP)",
-  "description": "A minimal Storypath system for Trinity Continuum: Aether with standardized character and NPC sheets and automatic success counting.",
+  "title": "Trinity Continuum: Aether (Simple)",
+  "description": "Simple character and NPC sheets with Storypath rolling for Trinity Continuum: Aether.",
   "version": "0.1.8",
 
   "manifest": "https://raw.githubusercontent.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/main/system.json",
-  "download": "https://github.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/archive/refs/tags/v0.1.8.zip",
+  "download": "https://github.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/releases/download/v0.1.8/fvtt-trnity_continuum-Aether-0.1.8.zip",
 
-  "compatibility": {
-    "minimum": "12",
-    "verified": "13"
-  },
+  "minimumCoreVersion": "11",
+  "compatibleCoreVersion": "11",
 
   "authors": [
     {
-      "name": "Helena D'Espindula"
+      "name": "Helena D'Espindula",
+      "url": "https://github.com/HelenaDEspindula"
     }
   ],
 
   "esmodules": [
-    "module/system.js"
+    "module/constants.js",
+    "module/actor/actor.js",
+    "module/actor/actor-sheet.js",
+    "module/actor/npc-sheet.js"
   ],
 
   "styles": [
     "css/aether.css"
   ],
 
-  "documentTypes": {
-    "Actor": {
-      "character": {},
-      "npc": {}
-    },
-    "Item": {
-      "path": {},
-      "gift": {},
-      "deviation": {},
-      "edge": {},
-      "aspiration": {},
-      "skillTrick": {},
-      "affinity": {},
-      "weapon": {},
-      "armor": {},
-      "vehicle": {},
-      "apparatus": {}
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
     }
-  }
+  ],
+
+  "packs": [],
+
+  "actors": {
+    "character": {
+      "type": "character",
+      "label": "Character",
+      "sheet": {
+        "class": "AetherActorSheet",
+        "template": "systems/fvtt-trnity_continuum-Aether/templates/actor/actor-sheet.hbs"
+      }
+    },
+    "npc": {
+      "type": "npc",
+      "label": "NPC",
+      "sheet": {
+        "class": "AetherNPCSheet",
+        "template": "systems/fvtt-trnity_continuum-Aether/templates/actor/npc-sheet.hbs"
+      }
+    }
+  },
+
+  "initiative": "1d10",
+
+  "gridDistance": 1,
+  "gridUnits": "m",
+
+  "primaryTokenAttribute": "health.current",
+
+  "socket": false
 }
