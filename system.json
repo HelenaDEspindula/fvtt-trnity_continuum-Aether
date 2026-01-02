@@ -2,13 +2,13 @@
   "id": "fvtt-trnity_continuum-Aether",
   "title": "Trinity Continuum: Aether (Simple)",
   "description": "Simple character and NPC sheets with Storypath rolling for Trinity Continuum: Aether.",
-  "version": "0.2.1",
+  "version": "0.2.2",
 
   "manifest": "https://raw.githubusercontent.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/main/system.json",
-  "download": "https://github.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/archive/refs/tags/v0.2.1.zip",
+  "download": "https://github.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/archive/refs/tags/v0.2.2.zip",
 
-  "minimumCoreVersion": "11",
-  "compatibleCoreVersion": "11",
+  "minimumCoreVersion": "12",
+  "compatibleCoreVersion": "13",
 
   "authors": [
     {
