@@ -2,14 +2,11 @@
   "id": "fvtt-trnity_continuum-Aether",
   "title": "Trinity Continuum: Aether (Simple)",
   "description": "Simple character and NPC sheets with Storypath rolling for Trinity Continuum: Aether.",
-  "version": "0.2.2",
-
+  "version": "0.2.3",
   "manifest": "https://raw.githubusercontent.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/main/system.json",
-  "download": "https://github.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/archive/refs/tags/v0.2.2.zip",
-
+  "download": "https://github.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/releases/download/v0.2.3/fvtt-trnity_continuum-Aether-0.2.3.zip",
   "minimumCoreVersion": "12",
   "compatibleCoreVersion": "13",
-
   "authors": [
     {
       "name": "Helena D'Espindula",
@@ -22,18 +19,13 @@
       "role": "Assisted with code structure, Foundry VTT patterns, and implementation guidance"
     }
   ],
-
   "esmodules": [
     "module/constants.js",
     "module/actor/actor.js",
     "module/actor/actor-sheet.js",
     "module/actor/npc-sheet.js"
   ],
-
-  "styles": [
-    "css/aether.css"
-  ],
-
+  "styles": ["css/aether.css"],
   "languages": [
     {
       "lang": "en",
@@ -41,9 +33,7 @@
       "path": "lang/en.json"
     }
   ],
-
   "packs": [],
-
   "actors": {
     "character": {
       "type": "character",
@@ -62,13 +52,9 @@
       }
     }
   },
-
   "initiative": "1d10",
-
   "gridDistance": 1,
   "gridUnits": "m",
-
   "primaryTokenAttribute": "health.current",
-
   "socket": false
 }
