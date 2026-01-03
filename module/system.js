@@ -1,18 +1,14 @@
 import { AetherActor } from "./actor/actor.js";
 import { AetherActorSheet } from "./actor/actor-sheet.js";
-import { AetherNpcSheet } from "./actor/npc-sheet.js";
-
-/* -------------------------------------------- */
-/*  SYSTEM INITIALIZATION                       */
-/* -------------------------------------------- */
+import { AetherNPCSheet } from "./actor/npc-sheet.js";
 
 Hooks.once("init", () => {
   console.log("Trinity Continuum: Aether | Initializing system");
 
-  // Register custom Actor document
+  // Register Actor
   CONFIG.Actor.documentClass = AetherActor;
 
-  // Unregister core sheets
+  // Unregister default sheets
   Actors.unregisterSheet("core", ActorSheet);
 
   // Register PC sheet
@@ -22,7 +18,7 @@ Hooks.once("init", () => {
   });
 
   // Register NPC sheet
-  Actors.registerSheet("fvtt-trnity_continuum-Aether", AetherNpcSheet, {
+  Actors.registerSheet("fvtt-trnity_continuum-Aether", AetherNPCSheet, {
     types: ["npc"],
     makeDefault: true
   });
