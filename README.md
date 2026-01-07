@@ -41,7 +41,9 @@ This system intentionally follows a robust engineering approach, even at early s
 
 ### 1. Centralized Rules
 All dice mechanics live in:
+```
 module/dice/storypath.js
+```
 Sheets never duplicate dice logic.
 
 ### 2. DOM-first Input Reading (Important)
@@ -50,8 +52,10 @@ Rule:
 Whenever a button depends on values typed in the sheet, read from the DOM first, and only fallback to actor.system.
 This avoids bugs where the UI shows a value (e.g. “5”) but the system still reads “0”.
 Implemented helpers (base sheet):
+```
 readFormNumber(name, fallback)
 readFormString(name, fallback)
+```
 All future roll buttons should use these helpers.
 
 ### 3. Safe Initialization
