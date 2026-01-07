@@ -1,0 +1,58 @@
+<section class="aether-card">
+  <h2>Attributes</h2>
+
+  {{#each system.attributes as |attr key|}}
+    <div class="aether-line">
+      <label>{{lookup ../AETHER.ATTRIBUTES key}}</label>
+      <input
+        type="number"
+        name="system.attributes.{{key}}.value"
+        value="{{attr.value}}"
+        data-dtype="Number"
+        min="0"
+      />
+    </div>
+  {{/each}}
+</section>
+
+<section class="aether-card">
+  <h2>Skills</h2>
+
+  {{#each system.skills as |skill key|}}
+    <div class="aether-line">
+      <button type="button" class="aether-roll" data-roll-skill="{{key}}">Roll</button>
+      <label>{{lookup ../AETHER.SKILLS key}}</label>
+      <input
+        type="number"
+        name="system.skills.{{key}}.value"
+        value="{{skill.value}}"
+        data-dtype="Number"
+        min="0"
+      />
+    </div>
+  {{/each}}
+</section>
+
+<section class="aether-card">
+  <h2>Pools</h2>
+
+  <div class="aether-line">
+    <label>Inspiration</label>
+    <input
+      type="number"
+      name="system.pools.inspiration.value"
+      value="{{system.pools.inspiration.value}}"
+      data-dtype="Number"
+      min="0"
+    />
+    <span class="aether-muted">/ {{system.pools.inspiration.max}}</span>
+  </div>
+
+  {{#if isGM}}
+    <div class="aether-line">
+      <button type="button" class="aether-insp-reset">Reset Inspiration (Session Start)</button>
+      <span class="aether-muted"></span>
+      <span></span>
+    </div>
+  {{/if}}
+</section>
