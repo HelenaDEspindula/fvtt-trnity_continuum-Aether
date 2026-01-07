@@ -123,7 +123,19 @@ Examples:
 ## Project Structure
 
 ```
-module/ ├─ actor/ │  ├─ actor.js │  ├─ actor-sheet.js │  ├─ npc-sheet.js │ ├─ dice/ │  └─ storypath.js │ ├─ constants.js ├─ system.js templates/ ├─ actor/ │  ├─ character-sheet.hbs │  └─ npc-sheet.hbs
+module/
+ ├─ actor/
+ │  ├─ actor.js
+ │  ├─ actor-sheet.js
+ │  ├─ npc-sheet.js
+ │ ├─ dice/
+ │  └─ storypath.js
+ │ ├─ constants.js
+ ├─ system.js
+ templates/
+ ├─ actor/
+ │  ├─ character-sheet.hbs
+ │  └─ npc-sheet.hbs
 ```
 
 
