@@ -1,0 +1,22 @@
+<section class="aether-card">
+  <h2>General</h2>
+
+  <div class="form-group">
+    <label>Type</label>
+    <select name="system.general.type">
+      <option value="">-</option>
+      <option value="squire" {{#if (eq system.general.type "squire")}}selected{{/if}}>Squire</option>
+      <option value="gog" {{#if (eq system.general.type "gog")}}selected{{/if}}>Gog</option>
+      <option value="magog" {{#if (eq system.general.type "magog")}}selected{{/if}}>Magog</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Aspirations</label>
+    <textarea name="system.general.aspirations" rows="4">{{system.general.aspirations}}</textarea>
+  </div>
+
+  <p class="aether-muted">
+    Paths and structured lists will be added next (Origin/Society/Role).
+  </p>
+</section>
