@@ -33,14 +33,34 @@ function readNumberFromSheet(html, inputName, fallback = 0) {
     const el = html?.find?.(`[name="${inputName}"]`)?.[0];
     if (!el) return Number(fallback) || 0;
 
-    // For number inputs, el.value is a string
     const v = Number(el.value);
     if (Number.isFinite(v)) return v;
 
     return Number(fallback) || 0;
-  } catch (e) {
+  } catch (_e) {
     return Number(fallback) || 0;
   }
+}
+
+/**
+ * Safely resolve the skill key from the clicked element or its ancestors.
+ */
+function getSkillKeyFromEvent(ev) {
+  const el = ev.currentTarget;
+
+  // Direct dataset variations
+  const direct =
+    el?.dataset?.rollSkill ??
+    el?.dataset?.skill ??
+    el?.dataset?.skillKey;
+
+  if (direct) return direct;
+
+  // Try closest ancestor with dataset
+  const closest = el?.closest?.("[data-roll-skill]");
+  if (closest?.dataset?.rollSkill) return closest.dataset.rollSkill;
+
+  return null;
 }
 
 export class AetherActorSheet extends ActorSheet {
@@ -53,10 +73,16 @@ export class AetherActorSheet extends ActorSheet {
       classes: ["aether", "sheet", "actor"],
       width: 900,
       height: 820,
+      /**
+       * Tabs config must match the template selectors.
+       * We use Foundry's standard:
+       * - navSelector: ".sheet-tabs"
+       * - contentSelector: ".sheet-body"
+       */
       tabs: [
         {
-          navSelector: ".aether-tabs",
-          contentSelector: ".aether-tab-content",
+          navSelector: ".sheet-tabs",
+          contentSelector: ".sheet-body",
           initial: "description"
         }
       ]
@@ -77,9 +103,9 @@ export class AetherActorSheet extends ActorSheet {
 
     data.AETHER = AETHER;
     data.system = this.actor.system;
-    data.isGM = game.user.isGM;
+    data.isGM = game.user?.isGM ?? false;
 
-    const items = this.actor.items;
+    const items = this.actor.items ?? [];
 
     // ExEss-style lists (kept if you are using Items for these)
     data.aspirations = items.filter(i => i.type === "aspiration");
@@ -120,18 +146,13 @@ export class AetherActorSheet extends ActorSheet {
     /*  Skill Rolls (robust DOM-first)           */
     /* ---------------------------------------- */
 
-    html.find("[data-roll-skill], .aether-roll").on("click", async (ev) => {
+    // IMPORTANT: do NOT bind ".aether-roll" globally for PC,
+    // because NPC uses ".aether-roll" too.
+    // For PCs, bind only elements that explicitly declare a skill key.
+    html.find("[data-roll-skill]").on("click", async (ev) => {
       ev.preventDefault();
 
-      const el = ev.currentTarget;
-
-      // Support a few attribute names used across templates
-      const skillKey =
-        el.dataset.rollSkill ??
-        el.dataset.skill ??
-        el.dataset.skillKey ??
-        el.closest("[data-roll-skill]")?.dataset?.rollSkill;
-
+      const skillKey = getSkillKeyFromEvent(ev);
       if (!skillKey) {
         ui.notifications?.warn("No skill defined for this roll.");
         return;
@@ -152,31 +173,33 @@ export class AetherActorSheet extends ActorSheet {
       const attrName = AETHER.ATTRIBUTES?.[attrKey] ?? attrKey;
       const skillName = AETHER.SKILLS?.[skillKey] ?? skillKey;
 
-      // If pool is 0, warn with details to help debugging
       if (pool <= 0) {
         ui.notifications?.warn(
-          `Pool is ${pool}. Check that ${attrName} and ${skillName} values are set/saved.`
+          `Pool is ${pool}. Check that ${attrName} and ${skillName} values are set and saved.`
         );
         return;
       }
 
-      await this.actor.rollStorypath({
-        label: `${attrName} + ${skillName}`,
-        attrKey,
-        skillKey,
-        pool, // IMPORTANT: explicit pool avoids "attribute-only" bugs
-        facetKey: this.actor.getHighestFacetKey?.() ?? "intuitive"
-      });
+      // Prefer a dedicated actor method if present
+      if (typeof this.actor.rollStorypath === "function") {
+        await this.actor.rollStorypath({
+          label: `${attrName} + ${skillName}`,
+          attrKey,
+          skillKey,
+          pool, // Explicit pool avoids "attribute-only" bugs
+          facetKey: this.actor.getHighestFacetKey?.() ?? "intuitive"
+        });
+      } else {
+        ui.notifications?.error("rollStorypath is not available on this Actor.");
+      }
     });
 
     /* ---------------------------------------- */
-    /*  Generic prompt button (if present)       */
+    /*  Generic prompt button (optional)         */
     /* ---------------------------------------- */
 
     html.find("[data-roll-prompt]").on("click", async (ev) => {
       ev.preventDefault();
-      // If your Actor has rollPrompt implemented, you can enable this.
-      // Otherwise, keep it simple and just warn.
       if (typeof this.actor.rollPrompt === "function") {
         await this.actor.rollPrompt({ label: "Storypath Roll" });
       } else {
@@ -191,6 +214,11 @@ export class AetherActorSheet extends ActorSheet {
     html.find(".aether-insp-reset").on("click", async (ev) => {
       ev.preventDefault();
 
+      if (!game.user?.isGM) {
+        ui.notifications?.warn("Only the GM can reset Inspiration.");
+        return;
+      }
+
       const max = Number(this.actor.system?.pools?.inspiration?.max ?? 0) || 0;
       await this.actor.update({ "system.pools.inspiration.value": max });
 
@@ -203,7 +231,7 @@ export class AetherActorSheet extends ActorSheet {
 
     html.find(".item-create").on("click", async (ev) => {
       ev.preventDefault();
-      const type = ev.currentTarget.dataset.type;
+      const type = ev.currentTarget?.dataset?.type;
       if (!type) return;
 
       await this.actor.createEmbeddedDocuments("Item", [{ name: `New ${type}`, type }]);
@@ -219,22 +247,28 @@ export class AetherActorSheet extends ActorSheet {
     html.find(".item-delete").on("click", async (ev) => {
       ev.preventDefault();
       const li = ev.currentTarget.closest(".item");
-      if (!li) return;
+      if (!li?.dataset?.itemId) return;
       await this.actor.deleteEmbeddedDocuments("Item", [li.dataset.itemId]);
     });
 
     /* ---------------------------------------- */
-    /*  Health tracker (if present)              */
+    /*  Health tracker (optional)                */
     /* ---------------------------------------- */
 
+    // Use delegation-safe selection; only bind if present.
     html.find(".health-box").on("click", async (ev) => {
-      const levelKey = ev.currentTarget.dataset.level;
-      const index = Number(ev.currentTarget.dataset.index);
+      ev.preventDefault();
 
-      const level = foundry.utils.duplicate(this.actor.system.health?.levels?.[levelKey]);
+      const levelKey = ev.currentTarget?.dataset?.level;
+      const index = Number(ev.currentTarget?.dataset?.index);
+
+      if (!levelKey || !Number.isFinite(index)) return;
+
+      const level = foundry.utils.duplicate(this.actor.system?.health?.levels?.[levelKey]);
       if (!level) return;
 
-      const newChecked = ev.currentTarget.checked ? index + 1 : index;
+      const isChecked = !!ev.currentTarget?.checked;
+      const newChecked = isChecked ? index + 1 : index;
 
       await this.actor.update({
         [`system.health.levels.${levelKey}.checked`]: newChecked
