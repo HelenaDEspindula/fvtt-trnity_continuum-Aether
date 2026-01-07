@@ -1,18 +1,5 @@
-// module/constants.js
 export const AETHER = {
   ID: "fvtt-trnity_continuum-Aether",
-
-  ACTOR_TYPES: {
-    character: "Character",
-    npc: "NPC"
-  },
-
-  // Aethernaut tiers (for the "Type" field you want on the sheet)
-  TIERS: {
-    squire: "Squire",
-    gog: "Gog",
-    magog: "Magog"
-  },
 
   ATTRIBUTES: {
     might: "Might",
@@ -45,17 +32,9 @@ export const AETHER = {
     technology: "Technology"
   },
 
-  // IMPORTANT: use "destructive" (not "destruction")
   FACETS: {
     intuitive: "Intuitive",
     reflective: "Reflective",
-    destructive: "Destructive"
-  },
-
-  // NPC pools (for the NPC sheet buttons you described)
-  NPC_POOLS: {
-    primary: "Primary Pool",
-    secondary: "Secondary Pool",
-    desperation: "Desperation Pool"
+    destruction: "Destruction"
   }
 };

@@ -1,17 +1,7 @@
 {
   "Actor": {
     "types": ["character", "npc"],
-
     "character": {
-      "description": {
-        "text": "",
-        "altIdentities": ""
-      },
-
-      "general": {
-        "type": "squire"
-      },
-
       "attributes": {
         "might": { "value": 1 },
         "dexterity": { "value": 1 },
@@ -23,7 +13,6 @@
         "manipulation": { "value": 1 },
         "composure": { "value": 1 }
       },
-
       "skills": {
         "aim": { "value": 0 },
         "athletics": { "value": 0 },
@@ -42,29 +31,15 @@
         "survival": { "value": 0 },
         "technology": { "value": 0 }
       },
-
       "facets": {
         "intuitive": { "value": 0 },
         "reflective": { "value": 0 },
-        "destructive": { "value": 0 }
+        "destruction": { "value": 0 }
       },
-
-      "health": {
-        "notes": "",
-        "levels": {
-          "0": { "label": "0", "boxes": 1, "checked": 0 },
-          "1": { "label": "-1", "boxes": 2, "checked": 0 },
-          "2": { "label": "-2", "boxes": 2, "checked": 0 },
-          "3": { "label": "-4", "boxes": 1, "checked": 0 },
-          "4": { "label": "I", "boxes": 1, "checked": 0 }
-        }
-      },
-
       "pools": {
-        "inspiration": { "value": 0, "max": 0 },
+        "inspiration": { "value": 0, "max": 10 },
         "momentum": { "value": 0 }
       },
-
       "combat": {
         "initiativeEnh": { "value": 0 },
         "defenseBase": { "value": 0 },
@@ -72,27 +47,16 @@
         "armorHard": { "value": 0 }
       }
     },
-
     "npc": {
-      "tier": "squire",
-
       "pools": {
-        "primary": { "value": 0, "label": "Primary Pool" },
-        "secondary": { "value": 0, "label": "Secondary Pool" },
-        "desperation": { "value": 0, "label": "Desperation Pool" }
-      },
-
-      "health": {
-        "max": 0,
-        "current": 0
-      },
-
-      "initiative": { "value": 0 },
-      "defense": { "value": 0 },
-
-      "poolsMeta": {
-        "inspiration": { "value": 0 },
+        "inspiration": { "value": 0, "max": 10 },
         "momentum": { "value": 0 }
+      },
+      "combat": {
+        "initiativeEnh": { "value": 0 },
+        "defenseBase": { "value": 0 },
+        "armorSoft": { "value": 0 },
+        "armorHard": { "value": 0 }
       }
     }
   }

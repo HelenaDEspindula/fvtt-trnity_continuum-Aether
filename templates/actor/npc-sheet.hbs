@@ -1,111 +1,28 @@
-<section class="aether sheet actor npc">
-
-  <!-- HEADER -->
+<form class="aether sheet actor" autocomplete="off">
   <header class="aether-header">
-    <div class="aether-name">
-      <input
-        name="name"
-        type="text"
-        value="{{actor.name}}"
-        placeholder="NPC Name"
-      />
+    <h1 class="aether-name">
+      <input name="name" type="text" value="{{actor.name}}" />
+    </h1>
+
+    <div class="aether-top-actions">
+      <button type="button" data-roll-prompt>Roll (Prompt)</button>
     </div>
   </header>
 
-  <!-- BASIC INFO -->
-  <div class="aether-card">
-    <h2>Overview</h2>
-
-    <div class="aether-line">
-      <label>Tier</label>
-      <select name="system.npc.tier">
-        <option value="squire" {{#if (eq system.npc.tier "squire")}}selected{{/if}}>Squire</option>
-        <option value="gog" {{#if (eq system.npc.tier "gog")}}selected{{/if}}>Gog</option>
-        <option value="magog" {{#if (eq system.npc.tier "magog")}}selected{{/if}}>Magog</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- POOLS -->
-  <div class="aether-card">
-    <h2>Pools</h2>
-
-    {{#each system.npc.pools as |pool key|}}
+  <section class="aether-grid">
+    <div class="aether-card">
+      <h2>Pools</h2>
       <div class="aether-line">
-        <label>{{pool.label}}</label>
-
-        <input
-          type="number"
-          name="system.npc.pools.{{key}}.value"
-          value="{{pool.value}}"
-          min="0"
-        />
-
-        {{#if ../isGM}}
-          <button
-            type="button"
-            class="npc-roll"
-            data-pool="{{key}}">
-            Roll
-          </button>
-        {{/if}}
+        <span>Inspiration</span>
+        <input type="number" name="system.pools.inspiration.value" value="{{system.pools.inspiration.value}}" min="0" />
+        <span class="aether-muted">/</span>
+        <input type="number" name="system.pools.inspiration.max" value="{{system.pools.inspiration.max}}" min="0" />
       </div>
-    {{/each}}
-  </div>
 
-  <!-- COMBAT -->
-  <div class="aether-card">
-    <h2>Combat</h2>
-
-    <div class="aether-line">
-      <label>Defense</label>
-      <input
-        type="number"
-        name="system.npc.defense.value"
-        value="{{system.npc.defense.value}}"
-      />
+      <div class="aether-line">
+        <span>Momentum (local tracker)</span>
+        <input type="number" name="system.pools.momentum.value" value="{{system.pools.momentum.value}}" min="0" />
+      </div>
     </div>
-
-    <div class="aether-line">
-      <label>Initiative</label>
-      <input
-        type="number"
-        name="system.npc.initiative.value"
-        value="{{system.npc.initiative.value}}"
-      />
-    </div>
-  </div>
-
-  <!-- HEALTH & INSPIRATION -->
-  <div class="aether-card">
-    <h2>Health & Inspiration</h2>
-
-    <div class="aether-line">
-      <label>Health</label>
-      <input
-        type="number"
-        name="system.npc.health.current"
-        value="{{system.npc.health.current}}"
-        min="0"
-      />
-      <span>/</span>
-      <input
-        type="number"
-        name="system.npc.health.max"
-        value="{{system.npc.health.max}}"
-        min="0"
-      />
-    </div>
-
-    <div class="aether-line">
-      <label>Inspiration</label>
-      <input
-        type="number"
-        name="system.npc.poolsMeta.inspiration.value"
-        value="{{system.npc.poolsMeta.inspiration.value}}"
-        min="0"
-      />
-    </div>
-  </div>
-
-</section>
+  </section>
+</form>
