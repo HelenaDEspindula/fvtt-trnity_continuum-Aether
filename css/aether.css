@@ -74,3 +74,36 @@
 
 .aether-ok { font-weight: 700; }
 .aether-bad { font-weight: 700; }
+
+/* Tabs (PC sheet) */
+.aether-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 12px 0;
+  padding: 6px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+}
+
+.aether-tabs .item {
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  user-select: none;
+  opacity: 0.8;
+}
+
+.aether-tabs .item.active {
+  opacity: 1;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.aether-tabs-content .tab {
+  display: none;
+}
+
+.aether-tabs-content .tab.active {
+  display: block;
+}
