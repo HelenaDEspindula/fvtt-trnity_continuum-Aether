@@ -1,48 +1,33 @@
-<form class="aether sheet actor" autocomplete="off">
-  <header class="aether-header">
-    <div class="aether-name">
-      <input name="name" type="text" value="{{actor.name}}" placeholder="NPC Name" />
-    </div>
-  </header>
+<section class="aether-card">
+  <h2>NPC Pools</h2>
 
-  <div class="aether-grid">
-    <section class="aether-card">
-      <h2>NPC Pools</h2>
-
-      <div class="aether-line">
-        <label>Primary Pool</label>
-        <input type="number" name="system.npcPools.primary.value" value="{{system.npcPools.primary.value}}" min="0" />
-        <span class="aether-muted"></span>
-      </div>
-
-      <div class="aether-line">
-        <label>Secondary Pool</label>
-        <input type="number" name="system.npcPools.secondary.value" value="{{system.npcPools.secondary.value}}" min="0" />
-        <span class="aether-muted"></span>
-      </div>
-
-      <div class="aether-line">
-        <label>Desperation Pool</label>
-        <input type="number" name="system.npcPools.desperation.value" value="{{system.npcPools.desperation.value}}" min="0" />
-        <span class="aether-muted"></span>
-      </div>
-
-      <hr>
-
-      <div class="aether-line">
-        <label>Enhancement (info)</label>
-        <input type="number" name="system.npcPools.enhancement.value" value="{{system.npcPools.enhancement.value}}" />
-        <span class="aether-muted"></span>
-      </div>
-
-      <div class="aether-muted" style="margin-top: 6px;">
-        MVP NPC sheet (edit values only). Rolling buttons will be added in v0.4.3.
-      </div>
-    </section>
-
-    <section class="aether-card">
-      <h2>Notes</h2>
-      <textarea name="system.notes" rows="10">{{system.notes}}</textarea>
-    </section>
+  <div class="aether-line">
+    <button type="button" class="aether-roll" data-npc-roll="primary">Roll</button>
+    <label>Primary Pool</label>
+    <input type="number" name="system.npcPools.primary.value" value="{{system.npcPools.primary.value}}" min="0" />
   </div>
-</form>
+
+  <div class="aether-line">
+    <button type="button" class="aether-roll" data-npc-roll="secondary">Roll</button>
+    <label>Secondary Pool</label>
+    <input type="number" name="system.npcPools.secondary.value" value="{{system.npcPools.secondary.value}}" min="0" />
+  </div>
+
+  <div class="aether-line">
+    <button type="button" class="aether-roll" data-npc-roll="desperation">Roll</button>
+    <label>Desperation Pool</label>
+    <input type="number" name="system.npcPools.desperation.value" value="{{system.npcPools.desperation.value}}" min="0" />
+  </div>
+
+  <hr>
+
+  <div class="aether-line">
+    <label>Enhancement (base)</label>
+    <input type="number" name="system.npcPools.enhancement.value" value="{{system.npcPools.enhancement.value}}" />
+    <span class="aether-muted">applied to rolls by default</span>
+  </div>
+
+  <div class="aether-muted" style="margin-top: 6px;">
+    Rolls are whispered to GM.
+  </div>
+</section>
