@@ -20,7 +20,7 @@
  * @returns {number}
  */
 export function countSuccesses(results = []) {
-  return results.filter(v => Number(v) >= 8).length;
+  return results.filter((v) => Number(v) >= 8).length;
 }
 
 /**
@@ -47,7 +47,10 @@ export async function rollStorypath({
 } = {}) {
   pool = Number(pool) || 0;
   enhancement = Number(enhancement) || 0;
-  difficulty = Number(difficulty) || 0;
+
+  // Difficulty should be a non-negative number (Storypath convention).
+  // If callers accidentally pass negative values, normalize it for display and math safety.
+  difficulty = Math.max(0, Number(difficulty) || 0);
 
   if (!actor) throw new Error("rollStorypath requires an actor.");
   if (pool <= 0) {
@@ -58,11 +61,16 @@ export async function rollStorypath({
   const roll = await new Roll(`${pool}d10`).evaluate();
 
   const die = roll.dice?.[0];
-  const results = (die?.results ?? []).map(r => r.result);
+  const results = (die?.results ?? []).map((r) => r.result);
 
   const successesFromDice = countSuccesses(results);
-  const totalSuccesses = successesFromDice + enhancement;
-  const netSuccesses = totalSuccesses - difficulty;
+  const successesBeforeDifficulty = successesFromDice + enhancement;
+  const netSuccesses = successesBeforeDifficulty - difficulty;
+
+  const outcome =
+    netSuccesses >= 0
+      ? `<span class="aether-ok">SUCCESS</span>`
+      : `<span class="aether-bad">FAILURE</span>`;
 
   const metaLines = [];
   for (const [k, v] of Object.entries(meta || {})) {
@@ -79,21 +87,21 @@ export async function rollStorypath({
 
       <hr>
 
-      <div class="aether-row"><b>Successes (dice)</b>: ${successesFromDice}</div>
+      <div class="aether-row"><b>Dice successes</b>: ${successesFromDice}</div>
       <div class="aether-row"><b>Enhancement</b>: ${enhancement >= 0 ? "+" : ""}${enhancement}</div>
-      <div class="aether-row"><b>Difficulty</b>: -${difficulty}</div>
+      <div class="aether-row"><b>Difficulty</b>: ${difficulty} <span class="aether-muted">(subtracted)</span></div>
 
       <hr>
 
-      <div class="aether-row"><b>Total successes</b>: ${totalSuccesses}</div>
-      <div class="aether-row"><b>Net successes</b>: <span class="aether-big">${netSuccesses}</span></div>
+      <div class="aether-row"><b>Successes (before difficulty)</b>: ${successesBeforeDifficulty}</div>
+      <div class="aether-row"><b>Net successes</b>: <span class="aether-big">${netSuccesses}</span> ${outcome}</div>
 
       ${metaLines.length ? `<hr>${metaLines.join("")}` : ""}
     </div>
   `;
 
   const gmIds = whisperGM
-    ? (game.users?.filter(u => u.isGM)?.map(u => u.id) ?? [])
+    ? (game.users?.filter((u) => u.isGM)?.map((u) => u.id) ?? [])
     : null;
 
   await roll.toMessage({
