@@ -1,55 +1,244 @@
 import { AETHER } from "../constants.js";
 
-export class AetherActorSheet extends ActorSheet {
-  static get defaultOptions() {
-    // Foundry v12+ uses foundry.utils.mergeObject (mergeObject global is deprecated)
-    const opts = foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["aether", "sheet", "actor"],
-      width: 720,
-      height: 740,
+/**
+ * Default Attribute suggestion by Skill
+ * (Used only as a suggestion; user can still choose other Attributes via prompt later.)
+ */
+const DEFAULT_ATTR_BY_SKILL = {
+  aim: "dexterity",
+  athletics: "dexterity",
+  closeCombat: "might",
+  command: "presence",
+  culture: "intellect",
+  empathy: "presence",
+  enigmas: "intellect",
+  humanities: "intellect",
+  integrity: "resolve",
+  larceny: "cunning",
+  medicine: "intellect",
+  persuasion: "presence",
+  pilot: "dexterity",
+  science: "intellect",
+  survival: "cunning",
+  technology: "intellect"
+};
 
-      // Robust tabs configuration:
-      // Ensures at least one tab is activated and visible.
+/**
+ * Robust numeric read:
+ * - Prefer the live value in the rendered sheet input (DOM)
+ * - Fallback to actor.system value
+ */
+function readNumberFromSheet(html, inputName, fallback = 0) {
+  try {
+    const el = html?.find?.(`[name="${inputName}"]`)?.[0];
+    if (!el) return Number(fallback) || 0;
+
+    // For number inputs, el.value is a string
+    const v = Number(el.value);
+    if (Number.isFinite(v)) return v;
+
+    return Number(fallback) || 0;
+  } catch (e) {
+    return Number(fallback) || 0;
+  }
+}
+
+export class AetherActorSheet extends ActorSheet {
+  /* -------------------------------------------- */
+  /*  CONFIG                                      */
+  /* -------------------------------------------- */
+
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      classes: ["aether", "sheet", "actor"],
+      width: 900,
+      height: 820,
       tabs: [
         {
-          navSelector: ".sheet-tabs",
-          contentSelector: ".sheet-body",
+          navSelector: ".aether-tabs",
+          contentSelector: ".aether-tab-content",
           initial: "description"
         }
       ]
     });
-
-    return opts;
   }
 
   get template() {
-    if (this.actor.type === "npc") {
-      return `systems/${AETHER.ID}/templates/actor/npc-sheet.hbs`;
-    }
+    // Character sheet only. NPC sheet is handled by npc-sheet.js (separate class).
     return `systems/${AETHER.ID}/templates/actor/character-sheet.hbs`;
   }
 
+  /* -------------------------------------------- */
+  /*  DATA PREP                                   */
+  /* -------------------------------------------- */
+
   getData() {
     const data = super.getData();
+
     data.AETHER = AETHER;
     data.system = this.actor.system;
+    data.isGM = game.user.isGM;
+
+    const items = this.actor.items;
+
+    // ExEss-style lists (kept if you are using Items for these)
+    data.aspirations = items.filter(i => i.type === "aspiration");
+
+    data.pathsOrigin = items.filter(i => i.type === "path" && i.system?.kind === "origin");
+    data.pathsSociety = items.filter(i => i.type === "path" && i.system?.kind === "society");
+    data.pathsRole = items.filter(i => i.type === "path" && i.system?.kind === "role");
+
+    data.gifts = items.filter(i => i.type === "gift");
+    data.deviations = items.filter(i => i.type === "deviation");
+
+    data.edges = items.filter(i => i.type === "edge");
+    data.skillTricks = items.filter(i => i.type === "skillTrick");
+    data.affinities = items.filter(i => i.type === "affinity");
+
+    data.weapons = items.filter(i => i.type === "weapon");
+    data.armors = items.filter(i => i.type === "armor");
+    data.vehicles = items.filter(i => i.type === "vehicle");
+    data.apparatus = items.filter(i => i.type === "apparatus");
+
+    // Required deviations = number of Magog gifts
+    data.requiredDeviations = data.gifts.filter(g => g.system?.isMagog).length;
+
+    // Highest facet (default for rolls)
+    data.highestFacetKey = this.actor.getHighestFacetKey?.() ?? "intuitive";
+
     return data;
   }
+
+  /* -------------------------------------------- */
+  /*  LISTENERS                                   */
+  /* -------------------------------------------- */
 
   activateListeners(html) {
     super.activateListeners(html);
 
-    // Click-to-roll on Skills: opens the standard prompt (defaults Attribute to Dexterity)
-    html.find("[data-roll-skill]").on("click", async (ev) => {
+    /* ---------------------------------------- */
+    /*  Skill Rolls (robust DOM-first)           */
+    /* ---------------------------------------- */
+
+    html.find("[data-roll-skill], .aether-roll").on("click", async (ev) => {
       ev.preventDefault();
-      const skillKey = ev.currentTarget.dataset.rollSkill;
-      await this.actor.rollPrompt({ attrKey: "dexterity", skillKey, label: "Skill Roll" });
+
+      const el = ev.currentTarget;
+
+      // Support a few attribute names used across templates
+      const skillKey =
+        el.dataset.rollSkill ??
+        el.dataset.skill ??
+        el.dataset.skillKey ??
+        el.closest("[data-roll-skill]")?.dataset?.rollSkill;
+
+      if (!skillKey) {
+        ui.notifications?.warn("No skill defined for this roll.");
+        return;
+      }
+
+      // Suggested attribute for this skill
+      const attrKey = DEFAULT_ATTR_BY_SKILL[skillKey] ?? "dexterity";
+
+      // Read CURRENT values from the sheet first (DOM), fallback to actor.system
+      const attrFallback = Number(this.actor.system?.attributes?.[attrKey]?.value ?? 0) || 0;
+      const skillFallback = Number(this.actor.system?.skills?.[skillKey]?.value ?? 0) || 0;
+
+      const attrVal = readNumberFromSheet(html, `system.attributes.${attrKey}.value`, attrFallback);
+      const skillVal = readNumberFromSheet(html, `system.skills.${skillKey}.value`, skillFallback);
+
+      const pool = (Number(attrVal) || 0) + (Number(skillVal) || 0);
+
+      const attrName = AETHER.ATTRIBUTES?.[attrKey] ?? attrKey;
+      const skillName = AETHER.SKILLS?.[skillKey] ?? skillKey;
+
+      // If pool is 0, warn with details to help debugging
+      if (pool <= 0) {
+        ui.notifications?.warn(
+          `Pool is ${pool}. Check that ${attrName} and ${skillName} values are set/saved.`
+        );
+        return;
+      }
+
+      await this.actor.rollStorypath({
+        label: `${attrName} + ${skillName}`,
+        attrKey,
+        skillKey,
+        pool, // IMPORTANT: explicit pool avoids "attribute-only" bugs
+        facetKey: this.actor.getHighestFacetKey?.() ?? "intuitive"
+      });
     });
 
-    // Generic prompt button
+    /* ---------------------------------------- */
+    /*  Generic prompt button (if present)       */
+    /* ---------------------------------------- */
+
     html.find("[data-roll-prompt]").on("click", async (ev) => {
       ev.preventDefault();
-      await this.actor.rollPrompt({ label: "Storypath Roll" });
+      // If your Actor has rollPrompt implemented, you can enable this.
+      // Otherwise, keep it simple and just warn.
+      if (typeof this.actor.rollPrompt === "function") {
+        await this.actor.rollPrompt({ label: "Storypath Roll" });
+      } else {
+        ui.notifications?.info("rollPrompt is not enabled in this build.");
+      }
+    });
+
+    /* ---------------------------------------- */
+    /*  Inspiration Reset (Session Start)        */
+    /* ---------------------------------------- */
+
+    html.find(".aether-insp-reset").on("click", async (ev) => {
+      ev.preventDefault();
+
+      const max = Number(this.actor.system?.pools?.inspiration?.max ?? 0) || 0;
+      await this.actor.update({ "system.pools.inspiration.value": max });
+
+      ui.notifications?.info(`Inspiration reset to ${max}.`);
+    });
+
+    /* ---------------------------------------- */
+    /*  Item Controls (if you are using Items)   */
+    /* ---------------------------------------- */
+
+    html.find(".item-create").on("click", async (ev) => {
+      ev.preventDefault();
+      const type = ev.currentTarget.dataset.type;
+      if (!type) return;
+
+      await this.actor.createEmbeddedDocuments("Item", [{ name: `New ${type}`, type }]);
+    });
+
+    html.find(".item-edit").on("click", (ev) => {
+      ev.preventDefault();
+      const li = ev.currentTarget.closest(".item");
+      const item = this.actor.items.get(li?.dataset?.itemId);
+      item?.sheet?.render(true);
+    });
+
+    html.find(".item-delete").on("click", async (ev) => {
+      ev.preventDefault();
+      const li = ev.currentTarget.closest(".item");
+      if (!li) return;
+      await this.actor.deleteEmbeddedDocuments("Item", [li.dataset.itemId]);
+    });
+
+    /* ---------------------------------------- */
+    /*  Health tracker (if present)              */
+    /* ---------------------------------------- */
+
+    html.find(".health-box").on("click", async (ev) => {
+      const levelKey = ev.currentTarget.dataset.level;
+      const index = Number(ev.currentTarget.dataset.index);
+
+      const level = foundry.utils.duplicate(this.actor.system.health?.levels?.[levelKey]);
+      if (!level) return;
+
+      const newChecked = ev.currentTarget.checked ? index + 1 : index;
+
+      await this.actor.update({
+        [`system.health.levels.${levelKey}.checked`]: newChecked
+      });
     });
   }
 }
