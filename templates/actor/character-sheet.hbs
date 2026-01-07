@@ -1,6 +1,5 @@
 <form class="{{cssClass}}" autocomplete="off">
 
-  {{!-- ================= HEADER ================= --}}
   <header class="aether-header">
     <div class="aether-name">
       <input
@@ -12,42 +11,32 @@
     </div>
   </header>
 
-  {{!-- ================= TABS NAV ================= --}}
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="description">Description</a>
+    <a class="item active" data-tab="description">Description</a>
     <a class="item" data-tab="general">General</a>
     <a class="item" data-tab="stats">Stats</a>
     <a class="item" data-tab="gifts">Gifts & Deviations</a>
     <a class="item" data-tab="others">Others</a>
   </nav>
 
-  {{!-- ================= TAB CONTENT ================= --}}
   <section class="sheet-body">
 
-    {{!-- ===== TAB: DESCRIPTION ===== --}}
-    <div class="tab" data-group="primary" data-tab="description">
+    <div class="tab active" data-group="primary" data-tab="description">
       <section class="aether-card">
         <h2>Description</h2>
 
         <div class="form-group">
           <label>Character Description</label>
-          <textarea
-            name="system.description"
-            rows="6"
-          >{{system.description}}</textarea>
+          <textarea name="system.description" rows="6">{{system.description}}</textarea>
         </div>
 
         <div class="form-group">
           <label>Alternate Identities</label>
-          <textarea
-            name="system.identities"
-            rows="4"
-          >{{system.identities}}</textarea>
+          <textarea name="system.identities" rows="4">{{system.identities}}</textarea>
         </div>
       </section>
     </div>
 
-    {{!-- ===== TAB: GENERAL ===== --}}
     <div class="tab" data-group="primary" data-tab="general">
       <section class="aether-card">
         <h2>General</h2>
@@ -55,7 +44,7 @@
         <div class="form-group">
           <label>Type</label>
           <select name="system.general.type">
-            <option value="">—</option>
+            <option value="">-</option>
             <option value="squire" {{#if (eq system.general.type "squire")}}selected{{/if}}>Squire</option>
             <option value="gog" {{#if (eq system.general.type "gog")}}selected{{/if}}>Gog</option>
             <option value="magog" {{#if (eq system.general.type "magog")}}selected{{/if}}>Magog</option>
@@ -64,16 +53,13 @@
 
         <div class="form-group">
           <label>Aspirations</label>
-          <textarea
-            name="system.general.aspirations"
-            rows="4"
-          >{{system.general.aspirations}}</textarea>
+          <textarea name="system.general.aspirations" rows="4">{{system.general.aspirations}}</textarea>
         </div>
       </section>
     </div>
 
-    {{!-- ===== TAB: STATS ===== --}}
     <div class="tab" data-group="primary" data-tab="stats">
+
       <section class="aether-card">
         <h2>Attributes</h2>
 
@@ -96,13 +82,7 @@
 
         {{#each system.skills as |skill key|}}
           <div class="aether-line">
-            <button
-              type="button"
-              class="aether-roll"
-              data-roll-skill="{{key}}"
-            >
-              Roll
-            </button>
+            <button type="button" class="aether-roll" data-roll-skill="{{key}}">Roll</button>
             <label>{{lookup ../AETHER.SKILLS key}}</label>
             <input
               type="number"
@@ -127,44 +107,33 @@
             data-dtype="Number"
             min="0"
           />
-          <span class="aether-muted">
-            / {{system.pools.inspiration.max}}
-          </span>
+          <span class="aether-muted">/ {{system.pools.inspiration.max}}</span>
         </div>
       </section>
+
     </div>
 
-    {{!-- ===== TAB: GIFTS ===== --}}
     <div class="tab" data-group="primary" data-tab="gifts">
       <section class="aether-card">
         <h2>Gifts</h2>
-        <p class="aether-muted">
-          Gift library integration planned. Manual entry for now.
-        </p>
+        <p class="aether-muted">Gift library integration planned. Manual entry for now.</p>
       </section>
 
       <section class="aether-card">
         <h2>Deviations</h2>
-        <p class="aether-muted">
-          Deviation automation planned.
-        </p>
+        <p class="aether-muted">Deviation automation planned.</p>
       </section>
     </div>
 
-    {{!-- ===== TAB: OTHERS ===== --}}
     <div class="tab" data-group="primary" data-tab="others">
       <section class="aether-card">
         <h2>Edges</h2>
-        <p class="aether-muted">
-          Edges support planned.
-        </p>
+        <p class="aether-muted">Edges support planned.</p>
       </section>
 
       <section class="aether-card">
         <h2>Affinities</h2>
-        <p class="aether-muted">
-          Relationship tracking planned.
-        </p>
+        <p class="aether-muted">Relationship tracking planned.</p>
       </section>
     </div>
 
