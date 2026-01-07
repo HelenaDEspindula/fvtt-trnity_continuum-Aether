@@ -3,45 +3,38 @@ import { AetherActor } from "./actor/actor.js";
 import { AetherActorSheet } from "./actor/actor-sheet.js";
 import { AetherNpcSheet } from "./actor/npc-sheet.js";
 
-Hooks.once("init", async () => {
+Hooks.once("init", () => {
   console.log(`${AETHER.ID} | init`);
 
+  // Expose constants (optional)
   CONFIG.AETHER = AETHER;
+
+  // Register Actor document class
   CONFIG.Actor.documentClass = AetherActor;
 
-  // Register sheets
+  /**
+   * IMPORTANT:
+   * Do NOT unregister core sheets while iterating.
+   * Keeping core sheets prevents "sheet won't open" if your custom sheet crashes.
+   */
+
+  // PC sheet
   Actors.registerSheet(AETHER.ID, AetherActorSheet, {
     types: ["character"],
     makeDefault: true,
     label: "Aether Character Sheet"
   });
 
+  // NPC sheet
   Actors.registerSheet(AETHER.ID, AetherNpcSheet, {
     types: ["npc"],
     makeDefault: true,
     label: "Aether NPC Sheet"
   });
 
-  // Preload templates
-  try {
-    await loadTemplates([
-      `systems/${AETHER.ID}/templates/actor/character-sheet.hbs`,
-      `systems/${AETHER.ID}/templates/actor/npc-sheet.hbs`
-    ]);
-  } catch (e) {
-    console.warn(`${AETHER.ID} | template preload warning`, e);
-  }
-
-  // OPTIONAL: Dice roller (do not break the system if missing)
-  try {
-    const mod = await import("./dice/actor-template.js"); // <-- adjust path if needed
-    if (typeof mod.registerDiceRoller === "function") {
-      mod.registerDiceRoller();
-      console.log(`${AETHER.ID} | Dice roller registered`);
-    } else {
-      console.warn(`${AETHER.ID} | Dice roller module loaded but registerDiceRoller() not found`);
-    }
-  } catch (e) {
-    console.warn(`${AETHER.ID} | Dice roller not loaded (safe to ignore for now)`, e);
-  }
+  // Preload templates (optional but helpful)
+  loadTemplates([
+    `systems/${AETHER.ID}/templates/actor/character-sheet.hbs`,
+    `systems/${AETHER.ID}/templates/actor/npc-sheet.hbs`
+  ]);
 });
