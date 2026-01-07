@@ -1,33 +1,58 @@
-<section class="aether-card">
-  <h2>NPC Pools</h2>
+<form class="{{cssClass}}" autocomplete="off">
+  <section class="aether-card">
+    <h2>NPC Pools</h2>
 
-  <div class="aether-line">
-    <button type="button" class="aether-roll" data-npc-roll="primary">Roll</button>
-    <label>Primary Pool</label>
-    <input type="number" name="system.npcPools.primary.value" value="{{system.npcPools.primary.value}}" min="0" />
-  </div>
+    <div class="aether-line">
+      <button type="button" class="aether-roll" data-npc-roll="primary">Roll</button>
+      <label>Primary Pool</label>
+      <input
+        type="number"
+        name="system.npcPools.primary.value"
+        value="{{system.npcPools.primary.value}}"
+        data-dtype="Number"
+        min="0"
+      />
+    </div>
 
-  <div class="aether-line">
-    <button type="button" class="aether-roll" data-npc-roll="secondary">Roll</button>
-    <label>Secondary Pool</label>
-    <input type="number" name="system.npcPools.secondary.value" value="{{system.npcPools.secondary.value}}" min="0" />
-  </div>
+    <div class="aether-line">
+      <button type="button" class="aether-roll" data-npc-roll="secondary">Roll</button>
+      <label>Secondary Pool</label>
+      <input
+        type="number"
+        name="system.npcPools.secondary.value"
+        value="{{system.npcPools.secondary.value}}"
+        data-dtype="Number"
+        min="0"
+      />
+    </div>
 
-  <div class="aether-line">
-    <button type="button" class="aether-roll" data-npc-roll="desperation">Roll</button>
-    <label>Desperation Pool</label>
-    <input type="number" name="system.npcPools.desperation.value" value="{{system.npcPools.desperation.value}}" min="0" />
-  </div>
+    <div class="aether-line">
+      <button type="button" class="aether-roll" data-npc-roll="desperation">Roll</button>
+      <label>Desperation Pool</label>
+      <input
+        type="number"
+        name="system.npcPools.desperation.value"
+        value="{{system.npcPools.desperation.value}}"
+        data-dtype="Number"
+        min="0"
+      />
+    </div>
 
-  <hr>
+    <hr>
 
-  <div class="aether-line">
-    <label>Enhancement (base)</label>
-    <input type="number" name="system.npcPools.enhancement.value" value="{{system.npcPools.enhancement.value}}" />
-    <span class="aether-muted">applied to rolls by default</span>
-  </div>
+    <div class="aether-line">
+      <label>Enhancement (base)</label>
+      <input
+        type="number"
+        name="system.npcPools.enhancement.value"
+        value="{{system.npcPools.enhancement.value}}"
+        data-dtype="Number"
+      />
+      <span class="aether-muted">applied to rolls by default</span>
+    </div>
 
-  <div class="aether-muted" style="margin-top: 6px;">
-    Rolls are whispered to GM.
-  </div>
-</section>
+    <div class="aether-muted" style="margin-top: 6px;">
+      Rolls are whispered to GM.
+    </div>
+  </section>
+</form>
