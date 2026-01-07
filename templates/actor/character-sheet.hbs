@@ -1,287 +1,172 @@
 <form class="{{cssClass}}" autocomplete="off">
 
+  {{!-- ================= HEADER ================= --}}
   <header class="aether-header">
     <div class="aether-name">
-      <input name="name" type="text" value="{{actor.name}}" placeholder="Name" />
-    </div>
-
-    <div class="aether-header-actions">
-      <button type="button" data-roll-prompt class="aether-roll">Roll</button>
+      <input
+        name="name"
+        type="text"
+        value="{{actor.name}}"
+        placeholder="Character Name"
+      />
     </div>
   </header>
 
-  <nav class="aether-tabs" data-group="primary">
+  {{!-- ================= TABS NAV ================= --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item" data-tab="description">Description</a>
     <a class="item" data-tab="general">General</a>
     <a class="item" data-tab="stats">Stats</a>
-    <a class="item" data-tab="gifts">Gifts and Deviations</a>
+    <a class="item" data-tab="gifts">Gifts & Deviations</a>
     <a class="item" data-tab="others">Others</a>
   </nav>
 
-  <section class="aether-tabs-content">
+  {{!-- ================= TAB CONTENT ================= --}}
+  <section class="sheet-body">
 
+    {{!-- ===== TAB: DESCRIPTION ===== --}}
     <div class="tab" data-group="primary" data-tab="description">
       <section class="aether-card">
         <h2>Description</h2>
-        <div class="aether-muted">
-          Placeholder tab. Add persistent fields later (template.json + sheet) without changing tab layout.
-        </div>
-      </section>
 
-      <section class="aether-card">
-        <h2>Alternate Identities</h2>
-        <div class="aether-muted">
-          Placeholder tab. Will be implemented as persistent fields later.
+        <div class="form-group">
+          <label>Character Description</label>
+          <textarea
+            name="system.description"
+            rows="6"
+          >{{system.description}}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Alternate Identities</label>
+          <textarea
+            name="system.identities"
+            rows="4"
+          >{{system.identities}}</textarea>
         </div>
       </section>
     </div>
 
+    {{!-- ===== TAB: GENERAL ===== --}}
     <div class="tab" data-group="primary" data-tab="general">
       <section class="aether-card">
         <h2>General</h2>
-        <div class="aether-muted">
-          Placeholder tab. Planned: Type, Aspirations, Origin/Society/Role Paths.
+
+        <div class="form-group">
+          <label>Type</label>
+          <select name="system.general.type">
+            <option value="">—</option>
+            <option value="squire" {{#if (eq system.general.type "squire")}}selected{{/if}}>Squire</option>
+            <option value="gog" {{#if (eq system.general.type "gog")}}selected{{/if}}>Gog</option>
+            <option value="magog" {{#if (eq system.general.type "magog")}}selected{{/if}}>Magog</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Aspirations</label>
+          <textarea
+            name="system.general.aspirations"
+            rows="4"
+          >{{system.general.aspirations}}</textarea>
         </div>
       </section>
     </div>
 
+    {{!-- ===== TAB: STATS ===== --}}
     <div class="tab" data-group="primary" data-tab="stats">
-      <div class="aether-grid">
+      <section class="aether-card">
+        <h2>Attributes</h2>
 
-        <section class="aether-card">
-          <h2>Attributes</h2>
-
+        {{#each system.attributes as |attr key|}}
           <div class="aether-line">
-            <label>Might</label>
-            <input type="number" name="system.attributes.might.value" value="{{system.attributes.might.value}}" data-dtype="Number" min="0" />
+            <label>{{lookup ../AETHER.ATTRIBUTES key}}</label>
+            <input
+              type="number"
+              name="system.attributes.{{key}}.value"
+              value="{{attr.value}}"
+              data-dtype="Number"
+              min="0"
+            />
           </div>
+        {{/each}}
+      </section>
+
+      <section class="aether-card">
+        <h2>Skills</h2>
+
+        {{#each system.skills as |skill key|}}
           <div class="aether-line">
-            <label>Dexterity</label>
-            <input type="number" name="system.attributes.dexterity.value" value="{{system.attributes.dexterity.value}}" data-dtype="Number" min="0" />
+            <button
+              type="button"
+              class="aether-roll"
+              data-roll-skill="{{key}}"
+            >
+              Roll
+            </button>
+            <label>{{lookup ../AETHER.SKILLS key}}</label>
+            <input
+              type="number"
+              name="system.skills.{{key}}.value"
+              value="{{skill.value}}"
+              data-dtype="Number"
+              min="0"
+            />
           </div>
-          <div class="aether-line">
-            <label>Stamina</label>
-            <input type="number" name="system.attributes.stamina.value" value="{{system.attributes.stamina.value}}" data-dtype="Number" min="0" />
-          </div>
+        {{/each}}
+      </section>
 
-          <hr>
+      <section class="aether-card">
+        <h2>Pools</h2>
 
-          <div class="aether-line">
-            <label>Intellect</label>
-            <input type="number" name="system.attributes.intellect.value" value="{{system.attributes.intellect.value}}" data-dtype="Number" min="0" />
-          </div>
-          <div class="aether-line">
-            <label>Cunning</label>
-            <input type="number" name="system.attributes.cunning.value" value="{{system.attributes.cunning.value}}" data-dtype="Number" min="0" />
-          </div>
-          <div class="aether-line">
-            <label>Resolve</label>
-            <input type="number" name="system.attributes.resolve.value" value="{{system.attributes.resolve.value}}" data-dtype="Number" min="0" />
-          </div>
-
-          <hr>
-
-          <div class="aether-line">
-            <label>Presence</label>
-            <input type="number" name="system.attributes.presence.value" value="{{system.attributes.presence.value}}" data-dtype="Number" min="0" />
-          </div>
-          <div class="aether-line">
-            <label>Manipulation</label>
-            <input type="number" name="system.attributes.manipulation.value" value="{{system.attributes.manipulation.value}}" data-dtype="Number" min="0" />
-          </div>
-          <div class="aether-line">
-            <label>Composure</label>
-            <input type="number" name="system.attributes.composure.value" value="{{system.attributes.composure.value}}" data-dtype="Number" min="0" />
-          </div>
-        </section>
-
-        <section class="aether-card">
-          <h2>Facets</h2>
-
-          <div class="aether-line">
-            <label>Intuitive</label>
-            <input type="number" name="system.facets.intuitive.value" value="{{system.facets.intuitive.value}}" data-dtype="Number" min="0" />
-          </div>
-          <div class="aether-line">
-            <label>Reflective</label>
-            <input type="number" name="system.facets.reflective.value" value="{{system.facets.reflective.value}}" data-dtype="Number" min="0" />
-          </div>
-          <div class="aether-line">
-            <label>Destruction</label>
-            <input type="number" name="system.facets.destruction.value" value="{{system.facets.destruction.value}}" data-dtype="Number" min="0" />
-          </div>
-
-          <hr>
-
-          <h2>Pools</h2>
-
-          <div class="aether-line">
-            <label>Inspiration</label>
-            <input type="number" name="system.pools.inspiration.value" value="{{system.pools.inspiration.value}}" data-dtype="Number" min="0" />
-            <span class="aether-muted">max: {{system.pools.inspiration.max}}</span>
-          </div>
-
-          <div class="aether-line">
-            <label>Momentum</label>
-            <input type="number" name="system.pools.momentum.value" value="{{system.pools.momentum.value}}" data-dtype="Number" min="0" />
-          </div>
-
-          <hr>
-
-          <h2>Combat</h2>
-
-          <div class="aether-line">
-            <label>Initiative Enhancement</label>
-            <input type="number" name="system.combat.initiativeEnh.value" value="{{system.combat.initiativeEnh.value}}" data-dtype="Number" />
-          </div>
-
-          <div class="aether-line">
-            <label>Defense Base</label>
-            <input type="number" name="system.combat.defenseBase.value" value="{{system.combat.defenseBase.value}}" data-dtype="Number" />
-          </div>
-
-          <div class="aether-line">
-            <label>Armor (Soft)</label>
-            <input type="number" name="system.combat.armorSoft.value" value="{{system.combat.armorSoft.value}}" data-dtype="Number" />
-          </div>
-
-          <div class="aether-line">
-            <label>Armor (Hard)</label>
-            <input type="number" name="system.combat.armorHard.value" value="{{system.combat.armorHard.value}}" data-dtype="Number" />
-          </div>
-        </section>
-
-        <section class="aether-card" style="grid-column: 1 / -1;">
-          <h2>Skills (click Roll)</h2>
-
-          <div class="aether-grid">
-            <div>
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="aim">Roll</button>
-                <span class="aether-skill-label">Aim</span>
-                <input type="number" name="system.skills.aim.value" value="{{system.skills.aim.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="athletics">Roll</button>
-                <span class="aether-skill-label">Athletics</span>
-                <input type="number" name="system.skills.athletics.value" value="{{system.skills.athletics.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="closeCombat">Roll</button>
-                <span class="aether-skill-label">Close Combat</span>
-                <input type="number" name="system.skills.closeCombat.value" value="{{system.skills.closeCombat.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="command">Roll</button>
-                <span class="aether-skill-label">Command</span>
-                <input type="number" name="system.skills.command.value" value="{{system.skills.command.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="culture">Roll</button>
-                <span class="aether-skill-label">Culture</span>
-                <input type="number" name="system.skills.culture.value" value="{{system.skills.culture.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="empathy">Roll</button>
-                <span class="aether-skill-label">Empathy</span>
-                <input type="number" name="system.skills.empathy.value" value="{{system.skills.empathy.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="enigmas">Roll</button>
-                <span class="aether-skill-label">Enigmas</span>
-                <input type="number" name="system.skills.enigmas.value" value="{{system.skills.enigmas.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="humanities">Roll</button>
-                <span class="aether-skill-label">Humanities</span>
-                <input type="number" name="system.skills.humanities.value" value="{{system.skills.humanities.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="integrity">Roll</button>
-                <span class="aether-skill-label">Integrity</span>
-                <input type="number" name="system.skills.integrity.value" value="{{system.skills.integrity.value}}" data-dtype="Number" min="0" />
-              </div>
-            </div>
-
-            <div>
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="larceny">Roll</button>
-                <span class="aether-skill-label">Larceny</span>
-                <input type="number" name="system.skills.larceny.value" value="{{system.skills.larceny.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="medicine">Roll</button>
-                <span class="aether-skill-label">Medicine</span>
-                <input type="number" name="system.skills.medicine.value" value="{{system.skills.medicine.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="persuasion">Roll</button>
-                <span class="aether-skill-label">Persuasion</span>
-                <input type="number" name="system.skills.persuasion.value" value="{{system.skills.persuasion.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="pilot">Roll</button>
-                <span class="aether-skill-label">Pilot</span>
-                <input type="number" name="system.skills.pilot.value" value="{{system.skills.pilot.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="science">Roll</button>
-                <span class="aether-skill-label">Science</span>
-                <input type="number" name="system.skills.science.value" value="{{system.skills.science.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="survival">Roll</button>
-                <span class="aether-skill-label">Survival</span>
-                <input type="number" name="system.skills.survival.value" value="{{system.skills.survival.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-line">
-                <button type="button" class="aether-roll" data-roll-skill="technology">Roll</button>
-                <span class="aether-skill-label">Technology</span>
-                <input type="number" name="system.skills.technology.value" value="{{system.skills.technology.value}}" data-dtype="Number" min="0" />
-              </div>
-
-              <div class="aether-muted" style="margin-top: 8px;">
-                Skill rolls currently open a prompt (default Attribute: Dexterity). This will be expanded later.
-              </div>
-            </div>
-          </div>
-        </section>
-
-      </div>
+        <div class="aether-line">
+          <label>Inspiration</label>
+          <input
+            type="number"
+            name="system.pools.inspiration.value"
+            value="{{system.pools.inspiration.value}}"
+            data-dtype="Number"
+            min="0"
+          />
+          <span class="aether-muted">
+            / {{system.pools.inspiration.max}}
+          </span>
+        </div>
+      </section>
     </div>
 
+    {{!-- ===== TAB: GIFTS ===== --}}
     <div class="tab" data-group="primary" data-tab="gifts">
       <section class="aether-card">
-        <h2>Gifts and Deviations</h2>
-        <div class="aether-muted">
-          Placeholder tab. Planned: Gifts list, Magog flag, Deviations count and details.
-        </div>
+        <h2>Gifts</h2>
+        <p class="aether-muted">
+          Gift library integration planned. Manual entry for now.
+        </p>
+      </section>
+
+      <section class="aether-card">
+        <h2>Deviations</h2>
+        <p class="aether-muted">
+          Deviation automation planned.
+        </p>
       </section>
     </div>
 
+    {{!-- ===== TAB: OTHERS ===== --}}
     <div class="tab" data-group="primary" data-tab="others">
       <section class="aether-card">
-        <h2>Others</h2>
-        <div class="aether-muted">
-          Placeholder tab. Planned: Edges, Skill Tricks, Relationships/Affinities.
-        </div>
+        <h2>Edges</h2>
+        <p class="aether-muted">
+          Edges support planned.
+        </p>
+      </section>
+
+      <section class="aether-card">
+        <h2>Affinities</h2>
+        <p class="aether-muted">
+          Relationship tracking planned.
+        </p>
       </section>
     </div>
 
   </section>
-
 </form>
