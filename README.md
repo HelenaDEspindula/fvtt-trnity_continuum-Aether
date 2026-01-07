@@ -1,7 +1,7 @@
 # Trinity Continuum: Aether – Foundry VTT System
 
-A custom Foundry VTT system for Trinity Continuum: Aether, focused on robustness, extensibility, and long-term maintainability.
-This system is being developed incrementally, with small, well-isolated changes per version, prioritizing software engineering best practices to support future expansion and collaboration.
+A custom Foundry VTT system for Trinity Continuum: Aether, focused on robustness, extensibility, and long-term maintainability.//
+This system is being developed incrementally, with small, well-isolated changes per version, prioritizing software engineering best practices to support future expansion and collaboration.//
 
 ## Features (current)
 
