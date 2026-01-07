@@ -180,19 +180,21 @@ export class AetherActorSheet extends ActorSheet {
         return;
       }
 
-      // Prefer a dedicated actor method if present
-      if (typeof this.actor.rollStorypath === "function") {
-        await this.actor.rollStorypath({
-          label: `${attrName} + ${skillName}`,
-          attrKey,
-          skillKey,
-          pool, // Explicit pool avoids "attribute-only" bugs
-          facetKey: this.actor.getHighestFacetKey?.() ?? "intuitive"
-        });
-      } else {
-        ui.notifications?.error("rollStorypath is not available on this Actor.");
-      }
+     // IMPORTANT: open the prompt so the user can choose attribute, mods, inspiration, etc.
+  if (typeof this.actor.rollPrompt === "function") {
+    await this.actor.rollPrompt({
+      label: "Skill Roll",
+      attrKey: suggestedAttrKey,
+      skillKey,
+      // prefill pool, but user can override in dialog
+      pool: basePool,
+      // default facet = highest facet
+      facetKey: this.actor.getHighestFacetKey?.() ?? "intuitive"
     });
+  } else {
+    ui.notifications?.error("rollPrompt() is not available. Implement it in actor.js or use a Dialog here.");
+  }
+});
 
     /* ---------------------------------------- */
     /*  Generic prompt button (optional)         */
