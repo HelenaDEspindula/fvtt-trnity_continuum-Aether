@@ -1,181 +1,180 @@
 # Trinity Continuum: Aether – Foundry VTT System
 
-A custom Foundry VTT system for Trinity Continuum: Aether, focused on robustness, extensibility, and long-term maintainability.
+A custom Foundry VTT system for Trinity Continuum: Aether, focused on robustness,
+extensibility, and long-term maintainability.
 
-This system is being developed incrementally, with small, well-isolated changes per version, prioritizing software engineering best practices to support future expansion and collaboration.
+This project is developed incrementally, with small and well-isolated changes per
+version. The primary goal is to maintain a clean architecture that supports future
+expansion, automation, and collaboration without accumulating technical debt.
 
+---
 
-## Features (current)
+## Current Features
 
-### Character Sheets (PC)
+### Player Character Sheets (PC)
 
-Attributes, Skills, Facets
+- Attributes, Skills, and Facets
+- Inspiration and Momentum pools
+- Combat-related values (initiative enhancement, armor, defenses)
+- Storypath-based dice rolling infrastructure
+- Shared dice engine with NPCs
 
-Inspiration and Momentum pools
+### Non-Player Character Sheets (NPC)
 
-Combat values (initiative enhancement, armor, defenses)
-
-Storypath dice rolling infrastructure (success-based)
-
-
-### NPC Sheets
-
-Dedicated NPC sheet
-
-Primary / Secondary / Desperation Pools
-
-Base Enhancement
-
-GM-only pool rolls
-
-Rolls are always whispered to the GM (never blind)
-
+- Dedicated NPC sheet
+- Persistent NPC Pools:
+  - Primary Pool
+  - Secondary Pool
+  - Desperation Pool
+- Base Enhancement value
+- GM-only pool rolls
+- Rolls are always whispered to the GM (never blind)
+- NPC data persists correctly between sheet openings
 
 ### Dice System
 
-Centralized Storypath dice engine
+- Centralized Storypath dice engine
+- d10 dice pool
+- Successes counted on results greater than or equal to 8
+- Enhancement adds automatic successes
+- Difficulty subtracts successes
+- Consistent chat card output for PCs and NPCs
+- Single source of truth for roll mechanics
 
-Successes counted on d10 results ≥ 8
+---
 
-Enhancement and Difficulty handled consistently
+## Dice Rolling Design
 
-Shared by PCs and NPCs (single source of truth)
+### NPC Rolls
 
+- Always whispered to the GM
+- Never blind rolls
+- Preserves chat history
+- Improves auditability and debugging
+- Suitable for investigative and narrative gameplay
 
-### Dice Rolling Design
+### PC Rolls
 
-#### NPC Rolls
+- Standard chat visibility
+- Uses the same Storypath dice engine as NPCs
+- Designed for future expansion (inspiration spending, modifiers)
 
-Always whispered to GM
-
-Never blind rolls
-
-Reasoning:
-
-Preserves chat history
-
-Improves debugging and auditability
-
-Matches investigative and narrative playstyle
-
-#### PC Rolls
-
-Standard chat visibility
-
-Uses the same dice engine for consistency
+---
 
 ## Engineering Principles
 
-This system intentionally follows a robust engineering approach, even at early stages:
+This system intentionally follows a robust engineering approach from early
+development stages.
 
+### Centralized Rules
 
-### 1. Centralized Rules
+All dice mechanics are implemented in a single module:
 
-All dice mechanics live in:
+`module/dice/storypath.js`
 
-```{js}
-module/dice/storypath.js
-```
-Sheets never duplicate dice logic.
+Sheets do not duplicate dice logic.
 
-### 2. DOM-first Input Reading (Important)
+---
 
-Foundry does not always commit input values to actor.system immediately.
+### DOM-First Input Reading
+
+Foundry VTT does not always immediately commit form input values to actor.system.
 
 Rule:
 
-Whenever a button depends on values typed in the sheet, read from the DOM first, and only fallback to actor.system.
+Whenever a button depends on values typed in a sheet, values must be read from the
+DOM first and only fall back to actor.system if necessary.
 
-This avoids bugs where the UI shows a value (e.g. “5”) but the system still reads “0”.
+This prevents issues where the UI displays a value but the underlying data still
+reads as zero.
 
-Implemented helpers (base sheet):
+Helper methods implemented in the base actor sheet:
+
+`readFormNumber(name, fallback) readFormString(name, fallback)`
+
+All future interactive buttons and roll logic should follow this pattern.
+
+---
+
+### Safe Initialization
+
+- Core Foundry sheets are never unregistered
+- Optional features must never block system initialization
+- Errors in one module must not prevent sheet rendering
+
+This avoids common failure modes such as sheets opening with only the actor name
+visible.
+
+---
+
+### Incremental Versioning
+
+Development follows a one-change-per-version philosophy.
+
+Examples:
+- v0.4.4 – Restore stable PC and NPC sheets
+- v0.4.5 – Introduce centralized dice engine
+- v0.4.6 – Connect NPC pool rolls
+- v0.4.7 – Add robust form input helpers
+- v0.4.10 – Fix NPC data persistence
+
+---
+
+## Project Structure
 
 ```
-readFormNumber(name, fallback)
-readFormString(name, fallback)
+module/ ├─ actor/ │  ├─ actor.js │  ├─ actor-sheet.js │  ├─ npc-sheet.js │ ├─ dice/ │  └─ storypath.js │ ├─ constants.js ├─ system.js templates/ ├─ actor/ │  ├─ character-sheet.hbs │  └─ npc-sheet.hbs
 ```
 
-All future roll buttons should use these helpers.
 
-### 3. Safe Initialization
-
-Core sheets are never unregistered
-
-Optional features never block system loading
-
-Errors in one module must not break sheet rendering
-
-This avoids “sheet opens with only name” or hard crashes.
-
-### 4. Incremental Versioning
-
-Development follows a one-change-per-version philosophy:
-
-Easier debugging
-
-Clear rollback points
-
-Safer collaboration
-
-Example:
-- v0.4.4 – restore stable PC/NPC sheets
-- v0.4.5 – add dice engine (no UI changes)
-- v0.4.6 – connect NPC pool rolls
-- v0.4.7 – add robust form input helpers
-
-## Project Structure (relevant)
-
-```
-module/
-├─ actor/
-│  ├─ actor.js
-│  ├─ actor-sheet.js        # Base sheet + form helpers
-│  ├─ npc-sheet.js          # NPC-specific logic
-│
-├─ dice/
-│  └─ storypath.js          # Centralized dice engine
-│
-├─ constants.js
-├─ system.js
-templates/
-├─ actor/
-│  ├─ character-sheet.hbs
-│  └─ npc-sheet.hbs
-```
+---
 
 ## Compatibility
 
-Designed for Foundry VTT v12+
+- Designed for Foundry VTT version 12 and later
+- Uses foundry.utils.mergeObject
+- Avoids deprecated APIs whenever possible
 
-Uses `foundry.utils.mergeObject`
+---
 
-Avoids deprecated APIs when possible
+## Roadmap
 
+### Short Term (0.4.x)
 
-## Roadmap (short-term)
+- PC sheet reorganization into tabs
+- Automatic calculation of maximum Inspiration
+- GM-only button to reset Inspiration at session start
+- Checkbox to spend Inspiration during rolls
+- PC roll flow unified with the centralized dice engine
 
-- NPC pool roll refinements
+### Medium Term (0.5.x)
 
-- PC roll unification using the same dice service
+- Structured library of Gifts, Edges, and Deviations
+- Declarative modifier system
+- Context-aware roll modifiers
+- Gradual automation of derived values
 
-- Combat calculations (defenses, health levels)
+### Long Term
 
-- Library-driven Gifts, Edges, and Deviations
+- Deeper combat automation
+- Health and damage tracks
+- Optional advanced secrecy tools
+- Compendium-driven rules integration
 
-- Automatic modifier aggregation
-
-- Optional Blind Rolls (future, not default)
-
+---
 
 ## Disclaimer
 
-This system is a fan-made implementation and is not affiliated with Onyx Path Publishing.
+This is a fan-made system and is not affiliated with Onyx Path Publishing.
 
-All trademarks and game mechanics belong to their respective owners.
+All trademarks, rules, and setting material belong to their respective owners.
 
+---
 
 ## Development Philosophy
 
-Prefer correctness, clarity, and extensibility over shortcuts.
+Correctness, clarity, and extensibility are prioritized over shortcuts.
 
-This project is intended to grow without technical debt.
+The system is designed to grow in a controlled manner, minimizing technical debt and
+preserving maintainability over time.
+
