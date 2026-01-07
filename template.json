@@ -1,7 +1,6 @@
 {
   "Actor": {
     "types": ["character", "npc"],
-
     "character": {
       "attributes": {
         "might": { "value": 1 },
@@ -14,7 +13,6 @@
         "manipulation": { "value": 1 },
         "composure": { "value": 1 }
       },
-
       "skills": {
         "aim": { "value": 0 },
         "athletics": { "value": 0 },
@@ -33,18 +31,15 @@
         "survival": { "value": 0 },
         "technology": { "value": 0 }
       },
-
       "facets": {
         "intuitive": { "value": 0 },
         "reflective": { "value": 0 },
         "destruction": { "value": 0 }
       },
-
       "pools": {
         "inspiration": { "value": 0, "max": 10 },
         "momentum": { "value": 0 }
       },
-
       "combat": {
         "initiativeEnh": { "value": 0 },
         "defenseBase": { "value": 0 },
@@ -52,7 +47,6 @@
         "armorHard": { "value": 0 }
       }
     },
-
     "npc": {
       "npcPools": {
         "primary": { "value": 0 },
@@ -60,12 +54,10 @@
         "desperation": { "value": 0 },
         "enhancement": { "value": 0 }
       },
-
       "pools": {
         "inspiration": { "value": 0, "max": 10 },
         "momentum": { "value": 0 }
       },
-
       "combat": {
         "initiativeEnh": { "value": 0 },
         "defenseBase": { "value": 0 },
