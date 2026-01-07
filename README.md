@@ -72,8 +72,7 @@ v0.4.6 – connect NPC pool rolls
 v0.4.7 – add robust form input helpers
 
 ## Project Structure (relevant)
-Copiar código
-
+```
 module/
 ├─ actor/
 │  ├─ actor.js
@@ -89,6 +88,7 @@ templates/
 ├─ actor/
 │  ├─ character-sheet.hbs
 │  └─ npc-sheet.hbs
+```
 
 ## Compatibility
 Designed for Foundry VTT v12+
