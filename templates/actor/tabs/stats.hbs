@@ -59,74 +59,10 @@
   {{/each}}
 </div>
 
-<!-- COMBAT -->
-<div class="aether-card">
-  <h2>Combat</h2>
-
-  <div class="aether-line">
-    <label>Soft Armor</label>
-    <input
-      type="number"
-      name="system.combat.armor.soft"
-      value="{{system.combat.armor.soft}}"
-    />
-    <span class="aether-muted">Applies to all Defenses</span>
-  </div>
-
-  <div class="aether-line">
-    <label>Hard Armor</label>
-    <input
-      type="number"
-      name="system.combat.armor.hard"
-      value="{{system.combat.armor.hard}}"
-    />
-    <span class="aether-muted">Adds to Health Max</span>
-  </div>
-
-  <hr>
-
-  <div class="aether-line">
-    <label>Defense Mod (Stamina)</label>
-    <input
-      type="number"
-      name="system.combat.defenseMods.stamina"
-      value="{{system.combat.defenseMods.stamina}}"
-    />
-    <span class="aether-muted">
-      Total: <b>{{system.combat.defenses.stamina}}</b>
-    </span>
-  </div>
-
-  <div class="aether-line">
-    <label>Defense Mod (Resolve)</label>
-    <input
-      type="number"
-      name="system.combat.defenseMods.resolve"
-      value="{{system.combat.defenseMods.resolve}}"
-    />
-    <span class="aether-muted">
-      Total: <b>{{system.combat.defenses.resolve}}</b>
-    </span>
-  </div>
-
-  <div class="aether-line">
-    <label>Defense Mod (Composure)</label>
-    <input
-      type="number"
-      name="system.combat.defenseMods.composure"
-      value="{{system.combat.defenseMods.composure}}"
-    />
-    <span class="aether-muted">
-      Total: <b>{{system.combat.defenses.composure}}</b>
-    </span>
-  </div>
-</div>
-
-<!-- HEALTH (UPDATED FOR AUTO BASE/MAX) -->
+<!-- HEALTH -->
 <div class="aether-card">
   <h2>Health</h2>
 
-  <!-- Track boxes -->
   {{#each healthRows as |row|}}
     <div class="aether-line">
       <span class="health-label">{{row.label}}</span>
@@ -142,34 +78,6 @@
       {{/each}}
     </div>
   {{/each}}
-
-  <hr>
-
-  <!-- Auto totals -->
-  <div class="aether-line">
-    <label>Health Current</label>
-    <input
-      type="number"
-      name="system.health.current"
-      value="{{system.health.current}}"
-      min="0"
-    />
-    <span class="aether-muted">
-      Max: <b>{{system.health.max}}</b>
-    </span>
-  </div>
-
-  <div class="aether-line">
-    <label>Health Base (track)</label>
-    <input
-      type="number"
-      value="{{system.health.base}}"
-      disabled
-    />
-    <span class="aether-muted">
-      Hard Armor: {{system.combat.armor.hard}}
-    </span>
-  </div>
 
   <label>Notes</label>
   <textarea
