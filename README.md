@@ -41,7 +41,7 @@ This system intentionally follows a robust engineering approach, even at early s
 
 ### 1. Centralized Rules
 All dice mechanics live in:
-```
+```{js}
 module/dice/storypath.js
 ```
 Sheets never duplicate dice logic.
@@ -96,7 +96,7 @@ templates/
 
 ## Compatibility
 Designed for Foundry VTT v12+
-Uses foundry.utils.mergeObject
+Uses `foundry.utils.mergeObject`
 Avoids deprecated APIs when possible
 
 ## Roadmap (short-term)
