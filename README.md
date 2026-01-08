@@ -225,6 +225,13 @@ All trademarks, rules, and setting material belong to their respective owners.
 
 Correctness, clarity, and extensibility are prioritized over shortcuts.
 
-The system is designed to grow in a controlled manner, minimizing technical debt and
-preserving maintainability over time.
+The system is designed to grow in a controlled manner, minimizing technical debt and preserving maintainability over time.
+
+---
+
+## Contributors
+
+This system is primarily developed and by Helena R S DEspindula.
+
+ChatGPT is used as a collaborative assistance tool for design discussion, code review, debugging, and iterative development support.
 
