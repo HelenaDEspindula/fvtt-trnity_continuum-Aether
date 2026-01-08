@@ -1,68 +1,78 @@
 {
   "Actor": {
-    "types": ["character", "npc"],
     "character": {
-      "attributes": {
-        "might": { "value": 1 },
-        "dexterity": { "value": 1 },
-        "stamina": { "value": 1 },
-        "intellect": { "value": 1 },
-        "cunning": { "value": 1 },
-        "resolve": { "value": 1 },
-        "presence": { "value": 1 },
-        "manipulation": { "value": 1 },
-        "composure": { "value": 1 }
-      },
-      "skills": {
-        "aim": { "value": 0 },
-        "athletics": { "value": 0 },
-        "closeCombat": { "value": 0 },
-        "command": { "value": 0 },
-        "culture": { "value": 0 },
-        "empathy": { "value": 0 },
-        "enigmas": { "value": 0 },
-        "humanities": { "value": 0 },
-        "integrity": { "value": 0 },
-        "larceny": { "value": 0 },
-        "medicine": { "value": 0 },
-        "persuasion": { "value": 0 },
-        "pilot": { "value": 0 },
-        "science": { "value": 0 },
-        "survival": { "value": 0 },
-        "technology": { "value": 0 }
-      },
-      "facets": {
-        "intuitive": { "value": 0 },
-        "reflective": { "value": 0 },
-        "destruction": { "value": 0 }
-      },
-      "pools": {
-        "inspiration": { "value": 0, "max": 10 },
-        "momentum": { "value": 0 }
-      },
-      "combat": {
-        "initiativeEnh": { "value": 0 },
-        "defenseBase": { "value": 0 },
-        "armorSoft": { "value": 0 },
-        "armorHard": { "value": 0 }
+      "system": {
+        "description": "",
+        "identities": "",
+        "general": {
+          "type": "",
+          "aspirations": ""
+        },
+        "attributes": {
+          "might": { "value": 1 },
+          "dexterity": { "value": 1 },
+          "stamina": { "value": 1 },
+          "intellect": { "value": 1 },
+          "cunning": { "value": 1 },
+          "resolve": { "value": 1 },
+          "presence": { "value": 1 },
+          "manipulation": { "value": 1 },
+          "composure": { "value": 1 }
+        },
+        "skills": {
+          "aim": { "value": 0 },
+          "athletics": { "value": 0 },
+          "closeCombat": { "value": 0 },
+          "command": { "value": 0 },
+          "culture": { "value": 0 },
+          "empathy": { "value": 0 },
+          "enigmas": { "value": 0 },
+          "humanities": { "value": 0 },
+          "integrity": { "value": 0 },
+          "larceny": { "value": 0 },
+          "medicine": { "value": 0 },
+          "persuasion": { "value": 0 },
+          "pilot": { "value": 0 },
+          "science": { "value": 0 },
+          "survival": { "value": 0 },
+          "technology": { "value": 0 }
+        },
+        "facets": {
+          "intuitive": { "value": 0 },
+          "reflective": { "value": 0 },
+          "destruction": { "value": 0 }
+        },
+        "pools": {
+          "inspiration": { "value": 0, "max": 10 },
+          "momentum": { "value": 0 }
+        },
+        "combat": {
+          "initiativeEnh": { "value": 0 },
+          "defenseBase": { "value": 0 },
+          "armorSoft": { "value": 0 },
+          "armorHard": { "value": 0 }
+        }
       }
     },
+
     "npc": {
-      "npcPools": {
-        "primary": { "value": 0 },
-        "secondary": { "value": 0 },
-        "desperation": { "value": 0 },
-        "enhancement": { "value": 0 }
-      },
-      "pools": {
-        "inspiration": { "value": 0, "max": 10 },
-        "momentum": { "value": 0 }
-      },
-      "combat": {
-        "initiativeEnh": { "value": 0 },
-        "defenseBase": { "value": 0 },
-        "armorSoft": { "value": 0 },
-        "armorHard": { "value": 0 }
+      "system": {
+        "npcPools": {
+          "primary": { "value": 0 },
+          "secondary": { "value": 0 },
+          "desperation": { "value": 0 },
+          "enhancement": { "value": 0 }
+        },
+        "pools": {
+          "inspiration": { "value": 0, "max": 10 },
+          "momentum": { "value": 0 }
+        },
+        "combat": {
+          "initiativeEnh": { "value": 0 },
+          "defenseBase": { "value": 0 },
+          "armorSoft": { "value": 0 },
+          "armorHard": { "value": 0 }
+        }
       }
     }
   }
