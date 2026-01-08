@@ -49,10 +49,30 @@
           </div>
         </div>
 
-        <!-- Health (mini track in header) -->
+        <!-- Health (header-only tracker) -->
         <div class="aether-field aether-health-mini">
           <label>Health</label>
 
+          <!-- Controls -->
+          <div class="aether-inline aether-health-mini-controls">
+            <span class="aether-muted">Max</span>
+            <input
+              type="number"
+              name="system.health.max"
+              value="{{system.health.max}}"
+              data-dtype="Number"
+              min="0"
+            />
+            <button
+              type="button"
+              class="aether-health-rebuild"
+              title="Rebuild health track to match Max"
+            >
+              Rebuild
+            </button>
+          </div>
+
+          <!-- Track -->
           <div class="aether-health-mini-track">
             {{#each system.health.boxes as |box index|}}
               <div
@@ -65,7 +85,7 @@
           </div>
 
           <div class="aether-muted aether-health-mini-hint">
-            Max: {{system.health.max}}
+            Click a box to cycle: empty, bashing, lethal, aggravated
           </div>
         </div>
 
