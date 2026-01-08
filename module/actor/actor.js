@@ -4,15 +4,73 @@ import { rollStorypath as rollStorypathService } from "../dice/storypath.js";
 /**
  * AetherActor (Trinity Continuum: Aether - MVP)
  * --------------------------------------------
- * Objetivo:
- * - SEM quick roll: sempre abrir dialog
- * - Reutilizar o Dice Service (module/dice/storypath.js)
- * - Evitar circular deps (Actor não importa sheets)
+ * Goals:
+ * - NO quick roll: always open a dialog
+ * - Reuse the Dice Service (module/dice/storypath.js)
+ * - Avoid circular deps (Actor does not import sheets)
+ *
+ * Health tracker (MVP):
+ * - Persisted as system.health.max + system.health.boxes[] (0..3)
+ * - Actor guarantees consistency so sheets/templates can be dumb and safe.
  */
 export class AetherActor extends Actor {
+  /* -------------------------------------------- */
+  /*  DATA SANITIZATION (robust, future-proof)    */
+  /* -------------------------------------------- */
+
+  prepareData() {
+    super.prepareData();
+    this._prepareHealth();
+  }
+
   /**
-   * Retorna a facet de maior valor. Empate: primeira na ordem de AETHER.FACETS.
-   * Usada como default quando "spend inspiration" estiver marcado.
+   * Ensure health data is always consistent:
+   * - system.health exists
+   * - max is a number >= 0
+   * - boxes is an array with length === max
+   * - values are clamped to 0..3
+   *
+   * Damage state codes:
+   * 0 empty, 1 bashing, 2 lethal, 3 aggravated
+   */
+  _prepareHealth() {
+    const sys = this.system ?? {};
+    const health = sys.health ?? {};
+
+    // Normalize max
+    const max = Math.max(0, Number(health.max ?? 0) || 0);
+
+    // Normalize boxes array
+    const boxes = Array.isArray(health.boxes) ? health.boxes.slice() : [];
+
+    // Resize while preserving existing marks
+    if (boxes.length < max) {
+      while (boxes.length < max) boxes.push(0);
+    } else if (boxes.length > max) {
+      boxes.length = max;
+    }
+
+    // Clamp states
+    for (let i = 0; i < boxes.length; i++) {
+      const v = Number(boxes[i]) || 0;
+      boxes[i] = Math.max(0, Math.min(3, v));
+    }
+
+    // Normalize notes
+    const notes = typeof health.notes === "string" ? health.notes : String(health.notes ?? "");
+
+    // Write back into the prepared data for this render cycle
+    sys.health = {
+      ...health,
+      max,
+      boxes,
+      notes
+    };
+  }
+
+  /**
+   * Returns the highest Facet key. Ties: first in AETHER.FACETS order.
+   * Used as default when "spend inspiration" is checked.
    */
   getHighestFacetKey() {
     const facets = this.system?.facets ?? {};
@@ -32,13 +90,13 @@ export class AetherActor extends Actor {
   }
 
   /* -------------------------------------------- */
-  /*  PC: SEMPRE via dialog                       */
+  /*  PC: ALWAYS via dialog                       */
   /* -------------------------------------------- */
 
   /**
-   * Abre o dialog de rolagem (PC).
-   * - attrKey/skillKey: pré-seleciona
-   * - pool: pré-preenche (ideal quando vem do DOM, sem depender de salvar)
+   * Opens the roll dialog (PC).
+   * - attrKey/skillKey: preselect
+   * - pool: prefill (ideal when coming from DOM, without requiring saving)
    */
   async rollPrompt({
     label = "Skill Roll",
@@ -57,7 +115,7 @@ export class AetherActor extends Actor {
     const attrVal = Number(this.system?.attributes?.[attrKey]?.value ?? 0) || 0;
     const skillVal = Number(this.system?.skills?.[skillKey]?.value ?? 0) || 0;
 
-    // Se sheet passou pool (DOM-first), usa. Se não, calcula do Actor.
+    // If sheet passed pool (DOM-first), use it. Otherwise compute from Actor.
     const basePool = Number.isFinite(Number(pool)) ? Number(pool) : (attrVal + skillVal);
 
     const defaultFacetKey = this.getHighestFacetKey();
@@ -135,14 +193,14 @@ export class AetherActor extends Actor {
             const spendInspiration = fd.get("spendInspiration") ? true : false;
             const facetKey = String(fd.get("facetKey") || defaultFacetKey);
 
-            // Se pool inválido, recalcula do Actor (previsível e robusto)
+            // If pool is invalid, recompute from Actor (predictable and robust)
             if (!Number.isFinite(poolN) || poolN <= 0) {
               const a = Number(this.system?.attributes?.[chosenAttrKey]?.value ?? 0) || 0;
               const s = Number(this.system?.skills?.[chosenSkillKey]?.value ?? 0) || 0;
               poolN = a + s;
             }
 
-            // Spend Inspiration: +Enh = valor da Facet escolhida, e decrementa 1 Inspiration
+            // Spend Inspiration: +Enh = chosen facet value; decrement 1 Inspiration
             if (spendInspiration) {
               const current = Number(this.system?.pools?.inspiration?.value ?? 0) || 0;
               if (current <= 0) {
@@ -172,7 +230,7 @@ export class AetherActor extends Actor {
       },
       default: "roll",
       render: (html) => {
-        // UX: ao trocar Attribute/Skill, recalcula pool automaticamente (com dados do Actor).
+        // UX: changing Attribute/Skill recomputes pool automatically (using Actor values).
         const form = html[0].querySelector("form");
         if (!form) return;
 
@@ -195,11 +253,11 @@ export class AetherActor extends Actor {
   }
 
   /* -------------------------------------------- */
-  /*  NPC: SEMPRE via dialog (GM-only)            */
+  /*  NPC: ALWAYS via dialog (GM-only)            */
   /* -------------------------------------------- */
 
   /**
-   * Abre dialog de rolagem para NPC pools.
+   * Opens roll dialog for NPC pools.
    * poolKey: "primary" | "secondary" | "desperation"
    */
   async rollNpcPrompt({ poolKey = "primary" } = {}) {
