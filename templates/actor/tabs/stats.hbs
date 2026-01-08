@@ -56,3 +56,50 @@
     </div>
   {{/if}}
 </section>
+
+<section class="aether-card">
+  <h2>Health</h2>
+
+  {{#if system.health}}
+    <div class="aether-line">
+      <label>Max</label>
+      <input
+        type="number"
+        name="system.health.max"
+        value="{{system.health.max}}"
+        data-dtype="Number"
+        min="0"
+      />
+      <button type="button" class="aether-health-rebuild">Rebuild</button>
+    </div>
+
+    <div class="aether-muted" style="margin: 6px 0;">
+      Click a box to cycle: empty, bashing, lethal, aggravated
+    </div>
+
+    <div class="aether-health-track">
+      {{#each system.health.boxes as |state idx|}}
+        <button
+          type="button"
+          class="aether-health-box"
+          data-health-index="{{idx}}"
+          data-health-state="{{state}}"
+          aria-label="Health box {{idx}}"
+        ></button>
+      {{/each}}
+    </div>
+
+    <div style="margin-top: 8px;">
+      <label class="aether-muted">Details</label>
+      <textarea
+        name="system.health.notes"
+        rows="3"
+        style="width: 100%;"
+      >{{system.health.notes}}</textarea>
+    </div>
+  {{else}}
+    <div class="aether-muted">
+      Health data is not available for this actor yet.
+    </div>
+  {{/if}}
+</section>
