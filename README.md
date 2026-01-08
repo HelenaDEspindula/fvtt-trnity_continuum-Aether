@@ -1,3 +1,5 @@
+
+
 # Trinity Continuum: Aether – Foundry VTT System
 
 A custom Foundry VTT system for Trinity Continuum: Aether, focused on robustness,
@@ -9,15 +11,23 @@ expansion, automation, and collaboration without accumulating technical debt.
 
 ---
 
-## Current Features
+## Current Features (v0.5.0)
 
 ### Player Character Sheets (PC)
 
-- Attributes, Skills, and Facets
-- Inspiration and Momentum pools
-- Combat-related values (initiative enhancement, armor, defenses)
-- Storypath-based dice rolling infrastructure
-- Shared dice engine with NPCs
+- Character sheet organized into tabs:
+  - Description
+  - General
+  - Stats
+  - Gifts and Deviations
+  - Others
+- Attributes and Skills (editable)
+- Description and alternate identities fields
+- Basic "General" fields (Type, Aspirations)
+- Inspiration pool tracking
+- GM-only button to reset Inspiration to the character maximum
+- Skill roll buttons on the Stats tab
+- PC rolls always open a roll dialog (no quick roll)
 
 ### Non-Player Character Sheets (NPC)
 
@@ -33,17 +43,23 @@ expansion, automation, and collaboration without accumulating technical debt.
 
 ### Dice System
 
-- Centralized Storypath dice engine
+- Centralized Storypath dice engine (single source of truth)
 - d10 dice pool
 - Successes counted on results greater than or equal to 8
 - Enhancement adds automatic successes
 - Difficulty subtracts successes
 - Consistent chat card output for PCs and NPCs
-- Single source of truth for roll mechanics
 
 ---
 
 ## Dice Rolling Design
+
+### PC Rolls
+
+- No quick roll: always opens a dialog/prompt before rolling
+- Standard chat visibility
+- Uses the same Storypath dice engine as NPCs
+- Designed for future expansion (spending Inspiration, additional modifiers)
 
 ### NPC Rolls
 
@@ -52,12 +68,6 @@ expansion, automation, and collaboration without accumulating technical debt.
 - Preserves chat history
 - Improves auditability and debugging
 - Suitable for investigative and narrative gameplay
-
-### PC Rolls
-
-- Standard chat visibility
-- Uses the same Storypath dice engine as NPCs
-- Designed for future expansion (inspiration spending, modifiers)
 
 ---
 
@@ -96,6 +106,19 @@ All future interactive buttons and roll logic should follow this pattern.
 
 ---
 
+### Tabs: Foundry-Native Initialization
+
+PC tabs are implemented using the Foundry-native tabs mechanism:
+
+- Navigation element: `.sheet-tabs` with `data-group="primary"`
+- Content container: `.sheet-body` containing `.tab` panels with matching
+  `data-group` and `data-tab`
+
+Tabs are initialized via `defaultOptions.tabs` in the ActorSheet class, avoiding
+manual tab wiring and reducing the risk of UI regressions across Foundry versions.
+
+---
+
 ### Safe Initialization
 
 - Core Foundry sheets are never unregistered
@@ -117,6 +140,7 @@ Examples:
 - v0.4.6 – Connect NPC pool rolls
 - v0.4.7 – Add robust form input helpers
 - v0.4.10 – Fix NPC data persistence
+- v0.5.0 – PC sheet tabs and Foundry-native tab initialization
 
 ---
 
@@ -164,20 +188,21 @@ templete.json
 
 ## Roadmap
 
-### Short Term (0.4.x)
+### Short Term (0.5.x)
 
-- PC sheet reorganization into tabs
 - Automatic calculation of maximum Inspiration
-- GM-only button to reset Inspiration at session start
 - Checkbox to spend Inspiration during rolls
-- PC roll flow unified with the centralized dice engine
+- PC roll flow fully unified with the centralized dice engine (prompt-driven)
+- Structured lists for Paths (Origin/Society/Role)
+- Expand "General", "Gifts and Deviations", and "Others" from placeholders to
+  editable structured content
 
-### Medium Term (0.5.x)
+### Medium Term (0.6.x)
 
 - Structured library of Gifts, Edges, and Deviations
 - Declarative modifier system
 - Context-aware roll modifiers
-- Gradual automation of derived values
+- Gradual automation of derived values (defenses, initiative, etc.)
 
 ### Long Term
 
