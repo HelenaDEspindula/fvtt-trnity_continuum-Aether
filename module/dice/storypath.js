@@ -1,41 +1,21 @@
 /**
  * Storypath Dice Service (Trinity Continuum / Aether MVP)
  * ------------------------------------------------------
- * Centralizes dice rolling rules so both PC and NPC sheets can reuse it.
+ * Centraliza regras de rolagem para PC e NPC.
  *
- * Rules (MVP):
- * - Roll pool d10
- * - Successes = results >= 8
- * - Enhancement adds automatic successes (can be negative if desired)
- * - Difficulty subtracts successes
+ * Regras (MVP):
+ * - pool d10
+ * - sucesso: resultado >= 8
+ * - enhancement: auto-successes (pode ser negativo)
+ * - difficulty: subtrai sucessos (>= 0)
  *
- * Notes:
- * - This file must NOT import sheets to avoid circular dependencies.
- * - Errors here should be caught by callers; do not break system init.
+ * Nota: não importar sheets aqui (evita circular dependency).
  */
 
-/**
- * Count successes from a list of d10 results.
- * @param {number[]} results
- * @returns {number}
- */
 export function countSuccesses(results = []) {
-  return results.filter((v) => Number(v) >= 8).length;
+  return results.filter(v => Number(v) >= 8).length;
 }
 
-/**
- * Perform a Storypath roll.
- *
- * @param {object} params
- * @param {Actor}  params.actor                Foundry Actor (speaker)
- * @param {string} params.label                Display label (e.g., "Primary Pool", "Dexterity + Aim")
- * @param {number} params.pool                 Dice pool (>= 1)
- * @param {number} params.enhancement          Auto-successes (can be negative)
- * @param {number} params.difficulty           Difficulty (>= 0)
- * @param {boolean} params.whisperGM           If true, whisper to all GMs
- * @param {object} params.meta                 Optional extra meta info for display
- * @returns {Promise<Roll>}
- */
 export async function rollStorypath({
   actor,
   label = "Roll",
@@ -47,10 +27,7 @@ export async function rollStorypath({
 } = {}) {
   pool = Number(pool) || 0;
   enhancement = Number(enhancement) || 0;
-
-  // Difficulty should be a non-negative number (Storypath convention).
-  // If callers accidentally pass negative values, normalize it for display and math safety.
-  difficulty = Math.max(0, Number(difficulty) || 0);
+  difficulty = Number(difficulty) || 0;
 
   if (!actor) throw new Error("rollStorypath requires an actor.");
   if (pool <= 0) {
@@ -61,11 +38,11 @@ export async function rollStorypath({
   const roll = await new Roll(`${pool}d10`).evaluate();
 
   const die = roll.dice?.[0];
-  const results = (die?.results ?? []).map((r) => r.result);
+  const results = (die?.results ?? []).map(r => r.result);
 
   const successesFromDice = countSuccesses(results);
-  const successesBeforeDifficulty = successesFromDice + enhancement;
-  const netSuccesses = successesBeforeDifficulty - difficulty;
+  const totalSuccesses = successesFromDice + enhancement;
+  const netSuccesses = totalSuccesses - difficulty;
 
   const outcome =
     netSuccesses >= 0
@@ -93,7 +70,7 @@ export async function rollStorypath({
 
       <hr>
 
-      <div class="aether-row"><b>Successes (before difficulty)</b>: ${successesBeforeDifficulty}</div>
+      <div class="aether-row"><b>Successes (before difficulty)</b>: ${totalSuccesses}</div>
       <div class="aether-row"><b>Net successes</b>: <span class="aether-big">${netSuccesses}</span> ${outcome}</div>
 
       ${metaLines.length ? `<hr>${metaLines.join("")}` : ""}
@@ -101,7 +78,7 @@ export async function rollStorypath({
   `;
 
   const gmIds = whisperGM
-    ? (game.users?.filter((u) => u.isGM)?.map((u) => u.id) ?? [])
+    ? (game.users?.filter(u => u.isGM)?.map(u => u.id) ?? [])
     : null;
 
   await roll.toMessage({
