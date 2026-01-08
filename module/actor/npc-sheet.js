@@ -1,35 +1,76 @@
-import { AetherActorSheet } from "./actor-sheet.js";
+import { AETHER } from "../constants.js";
 import { rollStorypath } from "../dice/storypath.js";
 
 /**
  * AetherNpcSheet
  * -------------
- * GM-only rolls for NPC pools (Primary/Secondary/Desperation).
+ * Dedicated NPC sheet (does NOT inherit from the PC sheet).
  *
- * Robust approach:
- * - Read the CURRENT input values from the rendered sheet when the button is clicked.
- *   (Foundry may not have committed the latest typed value into actor.system yet.)
- * - Fallback to actor.system values if inputs are not found.
- * - Rolls are ALWAYS whispered to GM (not blind) to preserve roll history and debugging.
+ * Why:
+ * - Inheriting from AetherActorSheet makes NPCs use the PC template and PC listeners.
+ * - Keeping NPC isolated is more robust for future changes and collaboration.
+ *
+ * Rolls:
+ * - GM-only
+ * - Whispered to GM (not blind)
+ * - Reads live DOM inputs first (most up-to-date), falls back to actor.system.
  */
-export class AetherNpcSheet extends AetherActorSheet {
+export class AetherNpcSheet extends ActorSheet {
+  /* -------------------------------------------- */
+  /*  CONFIG                                      */
+  /* -------------------------------------------- */
+
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      classes: ["aether", "sheet", "actor", "npc"],
+      width: 720,
+      height: 420
+    });
+  }
+
+  get template() {
+    return `systems/${AETHER.ID}/templates/actor/npc-sheet.hbs`;
+  }
+
+  getData() {
+    const data = super.getData();
+    data.AETHER = AETHER;
+    data.system = this.actor.system;
+    data.isGM = game.user?.isGM ?? false;
+    return data;
+  }
+
+  /* -------------------------------------------- */
+  /*  LISTENERS                                   */
+  /* -------------------------------------------- */
+
   activateListeners(html) {
     super.activateListeners(html);
+
+    // Only NPC pool rolls live here
     html.find("[data-npc-roll]").on("click", (ev) => this._onNpcPoolRoll(ev));
   }
 
   /**
-   * Safely read a number from an input on the current sheet.
+   * Safely read a number from an input on the current sheet (DOM-first).
+   * @param {string} inputName
+   * @param {number} fallback
    */
   _readSheetNumberInput(inputName, fallback = 0) {
     try {
-      const el = this.element?.find?.(`input[name="${inputName}"]`)?.[0];
+      // Use the rendered HTML when available; fallback to this.element
+      const root = this.element ?? null;
+
+      // Try direct from current rendered html (preferred)
+      const direct = this._element?.find?.(`input[name="${inputName}"]`)?.[0];
+      const el = direct ?? root?.find?.(`input[name="${inputName}"]`)?.[0];
+
       if (!el) return Number(fallback) || 0;
 
-      // Use valueAsNumber when possible (more reliable for number inputs)
+      // valueAsNumber is most reliable for <input type="number">
       const v = Number.isFinite(el.valueAsNumber) ? el.valueAsNumber : Number(el.value);
       return Number.isFinite(v) ? v : (Number(fallback) || 0);
-    } catch (e) {
+    } catch (_e) {
       return Number(fallback) || 0;
     }
   }
@@ -53,7 +94,7 @@ export class AetherNpcSheet extends AetherActorSheet {
     };
     const label = labelByKey[poolKey] ?? "NPC Pool";
 
-    // IMPORTANT: Read current values from the sheet inputs first (most up-to-date).
+    // Read current values from sheet first
     const inputPoolName = `system.npcPools.${poolKey}.value`;
     const inputEnhName = `system.npcPools.enhancement.value`;
 
@@ -88,20 +129,21 @@ export class AetherNpcSheet extends AetherActorSheet {
         <hr/>
 
         <p class="notes">
-          Base Pool: <b>${basePool}</b> &nbsp;|&nbsp; Base Enhancement: <b>${baseEnh}</b>
+          Base Pool: <b>${Number(basePool) || 0}</b> &nbsp;|&nbsp;
+          Base Enhancement: <b>${Number(baseEnh) || 0}</b>
         </p>
       </form>
     `;
 
     return new Dialog({
-      title: `${label} Roll`,
+      title: `${this.actor.name} — ${label}`,
       content,
       buttons: {
         roll: {
           label: "Roll",
-          callback: async (html) => {
+          callback: async (dlgHtml) => {
             try {
-              const form = html[0].querySelector("form");
+              const form = dlgHtml[0].querySelector("form");
               const fd = new FormData(form);
 
               const diceMod = Number(fd.get("diceMod") || 0) || 0;
