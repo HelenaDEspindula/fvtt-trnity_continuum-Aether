@@ -32,10 +32,9 @@ function readNumberFromSheet(html, inputName, fallback = 0) {
   try {
     const el = html?.find?.(`[name="${inputName}"]`)?.[0];
     if (!el) return Number(fallback) || 0;
-
     const v = Number(el.value);
     return Number.isFinite(v) ? v : (Number(fallback) || 0);
-  } catch (e) {
+  } catch {
     return Number(fallback) || 0;
   }
 }
@@ -45,8 +44,21 @@ export class AetherActorSheet extends ActorSheet {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["aether", "sheet", "actor"],
       width: 900,
-      height: 820
-      // Tabs: bind manual em activateListeners para ser mais robusto.
+      height: 820,
+
+      /**
+       * IMPORTANT:
+       * Esse sistema de tabs do ActorSheet só funciona se o template tiver:
+       * - navSelector com data-group="primary" e links com data-tab="..."
+       * - contentSelector contendo divs .tab[data-group="primary"][data-tab="..."]
+       */
+      tabs: [
+        {
+          navSelector: ".aether-tabs",
+          contentSelector: ".aether-body",
+          initial: "description"
+        }
+      ]
     });
   }
 
@@ -66,19 +78,10 @@ export class AetherActorSheet extends ActorSheet {
   activateListeners(html) {
     super.activateListeners(html);
 
-    // Tabs robustas (não depender de “magic options”)
-    try {
-      this._tabs = this._tabs ?? new Tabs({
-        navSelector: ".aether-tabs",
-        contentSelector: ".aether-tab-content",
-        initial: "description"
-      });
-      this._tabs.bind(html[0]);
-    } catch (e) {
-      console.warn(`${AETHER.ID} | Tabs not initialized:`, e);
-    }
-
-    // SEM quick roll: sempre abrir dialog
+    /**
+     * SEM quick roll: sempre abrir dialog.
+     * Clique no "Roll" da skill abre rollPrompt pre-preenchido.
+     */
     html.find("[data-roll-skill], [data-skill-roll]").on("click", async (ev) => {
       ev.preventDefault();
 
@@ -88,7 +91,6 @@ export class AetherActorSheet extends ActorSheet {
 
       const suggestedAttr = DEFAULT_ATTR_BY_SKILL[skillKey] ?? "dexterity";
 
-      // DOM-first (o usuário pode ter digitado e não salvou ainda)
       const attrFallback = Number(this.actor.system?.attributes?.[suggestedAttr]?.value ?? 0) || 0;
       const skillFallback = Number(this.actor.system?.skills?.[skillKey]?.value ?? 0) || 0;
 
