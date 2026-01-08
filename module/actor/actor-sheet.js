@@ -41,26 +41,27 @@ function readNumberFromSheet(html, inputName, fallback = 0) {
 
 export class AetherActorSheet extends ActorSheet {
   static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["aether", "sheet", "actor"],
-      width: 900,
-      height: 820,
+  return foundry.utils.mergeObject(super.defaultOptions, {
+    classes: ["aether", "sheet", "actor"],
+    width: 900,
+    height: 820,
 
-      /**
-       * IMPORTANT:
-       * Esse sistema de tabs do ActorSheet só funciona se o template tiver:
-       * - navSelector com data-group="primary" e links com data-tab="..."
-       * - contentSelector contendo divs .tab[data-group="primary"][data-tab="..."]
-       */
-      tabs: [
-        {
-          navSelector: ".aether-tabs",
-          contentSelector: ".aether-body",
-          initial: "description"
-        }
-      ]
-    });
-  }
+    /**
+     * Tabs nativas do Foundry
+     * Devem bater com:
+     * - nav: <nav class="sheet-tabs tabs" data-group="primary">
+     * - content: <section class="sheet-body"> ... <div class="tab" data-tab="...">
+     */
+    tabs: [
+      {
+        navSelector: ".sheet-tabs",
+        contentSelector: ".sheet-body",
+        initial: "description"
+      }
+    ]
+  });
+}
+
 
   get template() {
     return `systems/${AETHER.ID}/templates/actor/character-sheet.hbs`;
