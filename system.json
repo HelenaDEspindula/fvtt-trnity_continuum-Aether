@@ -24,10 +24,7 @@
     }
   ],
   "documentTypes": {
-    "Actor": {
-      "character": {},
-      "npc": {}
-    }
+    "Actor": ["character", "npc"]
   }
 }
 
