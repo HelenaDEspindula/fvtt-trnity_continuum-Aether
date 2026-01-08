@@ -2,10 +2,10 @@
   "id": "fvtt-trnity_continuum-Aether",
   "title": "Trinity Continuum: Aether (MVP)",
   "description": "A minimal Storypath system for standardized sheets and rolls with automatic success counting.",
-  "version": "0.4.16",
+  "version": "0.5.0",
   
   "manifest": "https://raw.githubusercontent.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/main/system.json",
-  "download": "https://github.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/archive/refs/tags/v0.4.16.zip",
+  "download": "https://github.com/HelenaDEspindula/fvtt-trnity_continuum-Aether/archive/refs/tags/v0.5.0.zip",
   
   "authors": [
     { "name": "Helena D'Espindula" }
