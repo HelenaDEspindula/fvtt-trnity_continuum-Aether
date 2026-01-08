@@ -1,11 +1,79 @@
-<form class="{{cssClass}}" autocomplete="off">
+<form class="aether sheet actor" autocomplete="off">
 
-  <header class="aether-header">
-    <div class="aether-name">
-      <input name="name" type="text" value="{{actor.name}}" placeholder="Character Name" />
+  <!-- HEADER (above tabs) -->
+  <header class="aether-topbar">
+
+    <img
+      class="aether-portrait"
+      src="{{actor.img}}"
+      data-edit="img"
+      data-tooltip="{{actor.name}}"
+    />
+
+    <div class="aether-top-main">
+      <div class="aether-title-row">
+        <input
+          class="aether-name-input"
+          name="name"
+          type="text"
+          value="{{actor.name}}"
+          placeholder="Name"
+        />
+      </div>
+
+      <div class="aether-summary-row">
+
+        <!-- Type (stored in system.details.type) -->
+        <div class="aether-field">
+          <label>Type</label>
+          <input
+            type="text"
+            name="system.details.type"
+            value="{{system.details.type}}"
+            placeholder="Type"
+          />
+        </div>
+
+        <!-- Inspiration -->
+        <div class="aether-field aether-field-compact">
+          <label>Inspiration</label>
+          <div class="aether-inline">
+            <input
+              type="number"
+              name="system.pools.inspiration.value"
+              value="{{system.pools.inspiration.value}}"
+              data-dtype="Number"
+              min="0"
+            />
+            <span class="aether-muted">/ {{system.pools.inspiration.max}}</span>
+          </div>
+        </div>
+
+        <!-- Health (mini track in header) -->
+        <div class="aether-field aether-health-mini">
+          <label>Health</label>
+
+          <div class="aether-health-mini-track">
+            {{#each system.health.boxes as |box index|}}
+              <div
+                class="aether-health-box"
+                data-index="{{index}}"
+                data-health-state="{{box.state}}"
+                title="Health box {{index}}"
+              ></div>
+            {{/each}}
+          </div>
+
+          <div class="aether-muted aether-health-mini-hint">
+            Max: {{system.health.max}}
+          </div>
+        </div>
+
+      </div>
     </div>
   </header>
 
+  <!-- TABS NAV -->
   <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item" data-tab="description">Description</a>
     <a class="item" data-tab="general">General</a>
@@ -14,27 +82,27 @@
     <a class="item" data-tab="others">Others</a>
   </nav>
 
+  <!-- TABS CONTENT -->
   <section class="sheet-body">
-
     <div class="tab" data-group="primary" data-tab="description">
-      {{> aether.character.tabs.description}}
+      {{> (concat "systems/" AETHER.ID "/templates/actor/tabs/description.hbs") }}
     </div>
 
     <div class="tab" data-group="primary" data-tab="general">
-      {{> aether.character.tabs.general}}
+      {{> (concat "systems/" AETHER.ID "/templates/actor/tabs/general.hbs") }}
     </div>
 
     <div class="tab" data-group="primary" data-tab="stats">
-      {{> aether.character.tabs.stats}}
+      {{> (concat "systems/" AETHER.ID "/templates/actor/tabs/stats.hbs") }}
     </div>
 
     <div class="tab" data-group="primary" data-tab="gifts">
-      {{> aether.character.tabs.gifts}}
+      {{> (concat "systems/" AETHER.ID "/templates/actor/tabs/gifts.hbs") }}
     </div>
 
     <div class="tab" data-group="primary" data-tab="others">
-      {{> aether.character.tabs.others}}
+      {{> (concat "systems/" AETHER.ID "/templates/actor/tabs/others.hbs") }}
     </div>
-
   </section>
+
 </form>
