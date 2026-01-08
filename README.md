@@ -123,6 +123,10 @@ Examples:
 ## Project Structure
 
 ```
+css/
+ ├─ aether.css
+lang/
+ ├─ en.json
 module/
  ├─ actor/
  │  ├─ actor.js
@@ -132,10 +136,19 @@ module/
  │  └─ storypath.js
  │ ├─ constants.js
  ├─ system.js
- templates/
+templates/
  ├─ actor/
+ │  ├─ tabs/
+ │     ├─ description.hbs
+ │     ├─ general.hbs
+ │     ├─ gifts.hbs
+ │     ├─ others.hbs
+ │     └─ stats.hbs
  │  ├─ character-sheet.hbs
  │  └─ npc-sheet.hbs
+README.md
+system.json
+templete.json
 ```
 
 
