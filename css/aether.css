@@ -109,6 +109,89 @@
 }
 
 /* -------------------------------------------- */
+/* ExEss-like header (portrait + summary)        */
+/* -------------------------------------------- */
+
+.aether-topbar {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 10px;
+}
+
+.aether-portrait {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+}
+
+.aether-top-main {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.aether-title-row {
+  display: flex;
+  align-items: center;
+}
+
+.aether-name-input {
+  width: 100%;
+  font-size: 1.4em;
+  font-weight: 700;
+}
+
+.aether-summary-row {
+  display: grid;
+  grid-template-columns: 1fr 220px 1fr;
+  gap: 12px;
+  align-items: end;
+}
+
+.aether-field label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.aether-field input[type="text"] {
+  width: 100%;
+}
+
+.aether-field-compact input[type="number"] {
+  width: 70px;
+}
+
+.aether-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Mini health track in header */
+.aether-health-mini-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.aether-health-mini-hint {
+  margin-top: 4px;
+}
+
+/* Header health boxes should be slightly smaller than the full tracker */
+.aether-topbar .aether-health-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+}
+
+/* -------------------------------------------- */
 /* Health tracker                               */
 /* -------------------------------------------- */
 
