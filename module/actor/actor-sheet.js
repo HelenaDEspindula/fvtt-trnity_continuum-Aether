@@ -2,7 +2,7 @@ import { AETHER } from "../constants.js";
 
 /**
  * Default Attribute suggestion by Skill.
- * Suggestion only: the dialog allows changing.
+ * Only a suggestion; the dialog allows changing it.
  */
 const DEFAULT_ATTR_BY_SKILL = {
   aim: "dexterity",
@@ -24,30 +24,39 @@ const DEFAULT_ATTR_BY_SKILL = {
 };
 
 /**
+ * Normalize Foundry's html argument into a plain HTMLElement root.
+ * Works across appv1/appv2 cases and with/without jQuery.
+ */
+function getRootElement(html) {
+  // jQuery-like
+  if (html?.[0] instanceof HTMLElement) return html[0];
+  // Already HTMLElement
+  if (html instanceof HTMLElement) return html;
+  // ActorSheet has this.element (usually jQuery), but don't rely on it
+  return null;
+}
+
+/**
  * Robust numeric read:
- * - Prefer DOM (current typed value)
+ * - Prefer the live input value in the rendered sheet (DOM)
  * - Fallback to actor.system
  */
-function readNumberFromSheet(html, inputName, fallback = 0) {
+function readNumberFromRoot(root, inputName, fallback = 0) {
   try {
-    const el = html?.find?.(`[name="${inputName}"]`)?.[0];
+    if (!root) return Number(fallback) || 0;
+    const el = root.querySelector(`[name="${inputName}"]`);
     if (!el) return Number(fallback) || 0;
 
-    // Use valueAsNumber when possible (more reliable for number inputs)
-    const v = Number.isFinite(el.valueAsNumber) ? el.valueAsNumber : Number(el.value);
+    // Prefer valueAsNumber for number inputs
+    const v =
+      typeof el.valueAsNumber === "number" && Number.isFinite(el.valueAsNumber)
+        ? el.valueAsNumber
+        : Number(el.value);
+
     return Number.isFinite(v) ? v : (Number(fallback) || 0);
   } catch {
     return Number(fallback) || 0;
   }
-}
-
-/**
- * Clamp integer within [min, max].
- */
-function clampInt(v, min, max) {
-  const n = Number(v);
-  if (!Number.isFinite(n)) return min;
-  return Math.max(min, Math.min(max, Math.trunc(n)));
 }
 
 export class AetherActorSheet extends ActorSheet {
@@ -56,10 +65,8 @@ export class AetherActorSheet extends ActorSheet {
       classes: ["aether", "sheet", "actor"],
       width: 900,
       height: 820,
-
       /**
        * Foundry native tabs:
-       * Must match:
        * - nav: <nav class="sheet-tabs tabs" data-group="primary">
        * - content: <section class="sheet-body"> ... <div class="tab" data-tab="...">
        */
@@ -79,129 +86,161 @@ export class AetherActorSheet extends ActorSheet {
 
   getData() {
     const data = super.getData();
+
     data.AETHER = AETHER;
     data.system = this.actor.system;
     data.isGM = game.user.isGM;
+
+    // Highest facet (default selection in roll dialog)
     data.highestFacetKey = this.actor.getHighestFacetKey?.() ?? "intuitive";
+
+    // Ensure health exists for safe rendering (do not auto-save here)
+    const h = data.system.health ?? {};
+    data.system.health = {
+      max: Number(h.max ?? 0) || 0,
+      boxes: Array.isArray(h.boxes) ? h.boxes : []
+    };
+
     return data;
   }
 
   activateListeners(html) {
     super.activateListeners(html);
 
+    const root = getRootElement(html);
+    if (!root) {
+      console.warn(`${AETHER.ID} | AetherActorSheet | Could not resolve sheet root element.`);
+      return;
+    }
+
     /**
-     * NO quick roll: always open dialog.
-     * Clicking the Skill "Roll" button opens rollPrompt prefilled.
+     * SEM quick roll: always open the roll dialog.
+     * Any element with data-roll-skill (or compatible aliases) triggers rollPrompt.
      */
-    html.find("[data-roll-skill], [data-skill-roll]").on("click", async (ev) => {
-      ev.preventDefault();
+    const skillRollTargets = root.querySelectorAll("[data-roll-skill],[data-skill-roll],[data-rollskill]");
+    skillRollTargets.forEach((btn) => {
+      btn.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
 
-      const el = ev.currentTarget;
-      const skillKey = el.dataset.rollSkill ?? el.dataset.skillRoll ?? el.dataset.skill;
-      if (!skillKey) return;
+        const el = ev.currentTarget;
 
-      const suggestedAttr = DEFAULT_ATTR_BY_SKILL[skillKey] ?? "dexterity";
+        const skillKey =
+          el.dataset.rollSkill ??
+          el.dataset.skillRoll ??
+          el.dataset.rollskill ??
+          el.dataset.skill;
 
-      const attrFallback = Number(this.actor.system?.attributes?.[suggestedAttr]?.value ?? 0) || 0;
-      const skillFallback = Number(this.actor.system?.skills?.[skillKey]?.value ?? 0) || 0;
+        if (!skillKey) {
+          ui.notifications?.warn("No skill defined for this roll.");
+          return;
+        }
 
-      // DOM-first read so unsaved typed values are respected
-      const attrVal = readNumberFromSheet(html, `system.attributes.${suggestedAttr}.value`, attrFallback);
-      const skillVal = readNumberFromSheet(html, `system.skills.${skillKey}.value`, skillFallback);
+        const suggestedAttr = DEFAULT_ATTR_BY_SKILL[skillKey] ?? "dexterity";
 
-      const pool = (Number(attrVal) || 0) + (Number(skillVal) || 0);
+        const attrFallback = Number(this.actor.system?.attributes?.[suggestedAttr]?.value ?? 0) || 0;
+        const skillFallback = Number(this.actor.system?.skills?.[skillKey]?.value ?? 0) || 0;
 
-      const attrName = AETHER.ATTRIBUTES?.[suggestedAttr] ?? suggestedAttr;
-      const skillName = AETHER.SKILLS?.[skillKey] ?? skillKey;
+        const attrVal = readNumberFromRoot(root, `system.attributes.${suggestedAttr}.value`, attrFallback);
+        const skillVal = readNumberFromRoot(root, `system.skills.${skillKey}.value`, skillFallback);
 
-      await this.actor.rollPrompt({
-        label: `${attrName} + ${skillName}`,
-        attrKey: suggestedAttr,
-        skillKey,
-        pool
+        const pool = (Number(attrVal) || 0) + (Number(skillVal) || 0);
+
+        const attrName = AETHER.ATTRIBUTES?.[suggestedAttr] ?? suggestedAttr;
+        const skillName = AETHER.SKILLS?.[skillKey] ?? skillKey;
+
+        if (typeof this.actor.rollPrompt !== "function") {
+          ui.notifications?.error("rollPrompt is not available on this Actor. Check actor.js exports/imports.");
+          return;
+        }
+
+        await this.actor.rollPrompt({
+          label: `${attrName} + ${skillName}`,
+          attrKey: suggestedAttr,
+          skillKey,
+          pool
+        });
       });
     });
 
-    html.find("[data-roll-prompt]").on("click", async (ev) => {
-      ev.preventDefault();
-      await this.actor.rollPrompt({ label: "Storypath Roll" });
+    /**
+     * Generic roll prompt button (optional)
+     */
+    root.querySelectorAll("[data-roll-prompt]").forEach((btn) => {
+      btn.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        if (typeof this.actor.rollPrompt !== "function") {
+          ui.notifications?.error("rollPrompt is not available on this Actor. Check actor.js exports/imports.");
+          return;
+        }
+
+        await this.actor.rollPrompt({ label: "Storypath Roll" });
+      });
     });
 
-    html.find(".aether-insp-reset").on("click", async (ev) => {
-      ev.preventDefault();
+    /**
+     * GM-only Inspiration reset
+     */
+    root.querySelectorAll(".aether-insp-reset").forEach((btn) => {
+      btn.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
 
-      if (!game.user.isGM) {
-        ui.notifications?.warn("Only the GM can reset Inspiration.");
-        return;
-      }
+        if (!game.user?.isGM) {
+          ui.notifications?.warn("Only the GM can reset Inspiration.");
+          return;
+        }
 
-      const max = Number(this.actor.system?.pools?.inspiration?.max ?? 0) || 0;
-      await this.actor.update({ "system.pools.inspiration.value": max });
-      ui.notifications?.info(`Inspiration reset to ${max}.`);
+        const max = Number(this.actor.system?.pools?.inspiration?.max ?? 0) || 0;
+        await this.actor.update({ "system.pools.inspiration.value": max });
+        ui.notifications?.info(`Inspiration reset to ${max}.`);
+      });
     });
 
-    /* -------------------------------------------- */
-    /*  Health tracker (DOM-first + persisted)       */
-    /* -------------------------------------------- */
+    /**
+     * Health header: rebuild track (button exists in your header now)
+     */
+    root.querySelectorAll(".aether-health-rebuild").forEach((btn) => {
+      btn.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
 
-    html.find(".aether-health-rebuild").on("click", async (ev) => {
-      ev.preventDefault();
-      await this._rebuildHealthFromSheet(html);
+        const max = readNumberFromRoot(root, "system.health.max", Number(this.actor.system?.health?.max ?? 0) || 0);
+        const safeMax = Math.max(0, Math.floor(Number(max) || 0));
+
+        const boxes = Array.from({ length: safeMax }, () => ({ state: 0 }));
+        await this.actor.update({
+          "system.health.max": safeMax,
+          "system.health.boxes": boxes
+        });
+      });
     });
 
-    html.find(".aether-health-box").on("click", async (ev) => {
-      ev.preventDefault();
-      await this._cycleHealthBox(ev);
+    /**
+     * Health header: click to cycle state 0->1->2->3->0
+     */
+    root.querySelectorAll(".aether-health-box").forEach((boxEl) => {
+      boxEl.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        const idx = Number(ev.currentTarget?.dataset?.index);
+        if (!Number.isFinite(idx)) return;
+
+        const boxes = Array.isArray(this.actor.system?.health?.boxes)
+          ? foundry.utils.duplicate(this.actor.system.health.boxes)
+          : [];
+
+        if (!boxes[idx]) return;
+
+        const current = Number(boxes[idx].state ?? 0) || 0;
+        const next = (current + 1) % 4;
+        boxes[idx].state = next;
+
+        await this.actor.update({ "system.health.boxes": boxes });
+      });
     });
-  }
-
-  /**
-   * Rebuild health boxes array to match current Max.
-   * Robust behavior:
-   * - Read max from DOM (current typed value)
-   * - Fallback actor.system.health.max
-   * - Preserve existing box states where possible
-   */
-  async _rebuildHealthFromSheet(html) {
-    const sysHealth = this.actor.system?.health ?? {};
-    const currentMaxFallback = Number(sysHealth.max ?? 0) || 0;
-
-    const max = Math.max(0, readNumberFromSheet(html, "system.health.max", currentMaxFallback));
-
-    const existing = Array.isArray(sysHealth.boxes) ? sysHealth.boxes.slice() : [];
-    const boxes = existing.slice(0, max);
-
-    while (boxes.length < max) boxes.push(0);
-
-    // Clamp states
-    for (let i = 0; i < boxes.length; i++) {
-      boxes[i] = clampInt(boxes[i], 0, 3);
-    }
-
-    await this.actor.update({
-      "system.health.max": max,
-      "system.health.boxes": boxes
-    });
-  }
-
-  /**
-   * Cycle a single health box state:
-   * 0 empty -> 1 bashing -> 2 lethal -> 3 aggravated -> 0 empty
-   */
-  async _cycleHealthBox(ev) {
-    const target = ev.currentTarget;
-    const idx = Number(target?.dataset?.healthIndex);
-    if (!Number.isFinite(idx)) return;
-
-    // Always operate on actor.system (source of truth), then persist.
-    const sysHealth = this.actor.system?.health ?? {};
-    const boxes = Array.isArray(sysHealth.boxes) ? sysHealth.boxes.slice() : [];
-    if (idx < 0 || idx >= boxes.length) return;
-
-    const current = clampInt(boxes[idx], 0, 3);
-    const next = (current + 1) % 4;
-    boxes[idx] = next;
-
-    await this.actor.update({ "system.health.boxes": boxes });
   }
 }
